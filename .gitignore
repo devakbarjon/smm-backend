@@ -1,0 +1,12 @@
+# Ignore environment folders and files
+env/
+.env*
+
+# Ignore logs
+app/data/logs/*.log
+
+.idea/
+# Ignore Python cache files
+__pycache__/   
+
+*.pyc
