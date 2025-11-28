@@ -4,13 +4,12 @@ from tonutils.wallet import (
 )
 
 from app.core.config import settings
-from app.logging_config import logger
-IS_TESTNET = False
+from app.core.logging import logger
 
-MNEMONIC = settings.mnemonic
-API_KEY = settings.ton_center_api_key
+MNEMONIC = settings.TON_WALLET_MNEMONIC.get_secret_value()
+API_KEY = settings.TON_CENTER_API_KEY.get_secret_value()
 
-client = ToncenterV3Client(api_key=API_KEY, is_testnet=IS_TESTNET, rps=1, max_retries=1)
+client = ToncenterV3Client(api_key=API_KEY, max_retries=1)
 
 wallet, public_key, private_key, mnemonic = WalletV4R2.from_mnemonic(client, MNEMONIC)
 

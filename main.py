@@ -2,8 +2,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.db.database import engine, Base
-from app.logging_config import logger
+from app.db.base import engine, Base
+from backend.app.core.logging import logger
 from app.api.v1.router import router as api_v1_router
 from app.services.telegram.bot.bot_base import bot
 from app.core.config import settings

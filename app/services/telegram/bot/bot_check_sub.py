@@ -1,4 +1,4 @@
-from app.logging_config import logger
+from app.core.logging import logger
 from .bot_base import bot
 
 

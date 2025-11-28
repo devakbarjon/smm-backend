@@ -5,7 +5,7 @@ from aiogram.utils.web_app import check_webapp_signature
 
 from app.db.functions.users import get_user_by_id, save_user
 from app.core.config import settings
-from app.db.database import get_db
+from app.db.base import get_db
 
 
 async def authenticate_user(init_data: str, start_param: str = "") -> dict:

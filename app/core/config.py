@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     DATABASE_USER: str = "user"
     DATABASE_PASSWORD: SecretStr = SecretStr("password")
     DATABASE_ECHO: bool = False
+
+    # Ton
+    TON_CENTER_API_KEY: SecretStr = SecretStr("your-ton-center-api-key")
+    TON_WALLET_MNEMONIC: SecretStr = SecretStr("your-ton-wallet-mnemonic")
     
     # Bot
     BOT_TOKEN: SecretStr = SecretStr("your-bot-token")
