@@ -12,10 +12,10 @@ class Service(Base, IdMixin, TimestampMixin):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     api_service_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
 
-    price: Mapped[Decimal] = mapped_column(Numeric(10, 2))  # Your selling price
+    price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     min_amount: Mapped[int] = mapped_column(Integer)
     max_amount: Mapped[int] = mapped_column(Integer)
-    type: Mapped[str] = mapped_column(String(50))  # example: followers, views, likes
+    type: Mapped[str] = mapped_column(String(50))
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     category = relationship("Category", back_populates="services")

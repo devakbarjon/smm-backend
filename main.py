@@ -26,22 +26,3 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    if settings.ENVIRONMENT == "development":
-        client_host = request.client.host
-    else:
-        client_host = request.headers.get("X-Forwarded-For", request.client.host)
-    logger.info(f"Incoming request: {request.method} {request.url} {client_host}")
-    response = await call_next(request)
-    logger.info(f"Response status: {response.status_code}")
-    return response
