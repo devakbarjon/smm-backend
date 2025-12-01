@@ -14,7 +14,7 @@ class Order(Base, IdMixin, TimestampMixin):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     link: Mapped[str] = mapped_column(String(500), nullable=False)
 
-    status: Mapped[str] = mapped_column(String(50), default="pending")
+    is_done: Mapped[bool] = mapped_column(default=False)
     order_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     user = relationship("User", back_populates="orders")
