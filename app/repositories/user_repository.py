@@ -21,23 +21,3 @@ class UserRepository(BaseRepository):
 
     async def get_by_ref_code(self, code: str) -> User | None:
         return await self.get_one(User, ref_code=code)
-
-    async def update_username(self, user_id: int, username: str) -> User | None:
-        user = await self.get_by_id(user_id)
-        if not user:
-            return None
-
-        user.username = username
-        await self.session.commit()
-        await self.session.refresh(user)
-        return user
-
-    async def update_balance(self, user_id: int, amount: float) -> User | None:
-        user = await self.get_by_id(user_id)
-        if not user:
-            return None
-
-        user.balance += amount
-        await self.session.commit()
-        await self.session.refresh(user)
-        return user

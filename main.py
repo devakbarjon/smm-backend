@@ -1,19 +1,17 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 
-from app.db.base import engine, Base
+from app.database.base import init_models
+
+from app.core.config import settings
 from app.core.exceptions import http_error_handler, validation_error_handler
 from app.core.logging import logger
+
 from app.api.v1.router import router as api_v1_router
-from backend.app.services.telegram.bot_base import bot
-from app.core.config import settings
 
-
-async def init_models():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database models initialized.")
+from app.services.telegram.bot_base import bot
 
 
 @asynccontextmanager

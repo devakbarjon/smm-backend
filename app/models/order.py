@@ -1,8 +1,8 @@
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from app.db.base import Base
-from app.db.mixins import IdMixin, TimestampMixin
+from app.database.base import Base
+from app.database.mixins import IdMixin, TimestampMixin
 
 
 class Order(Base, IdMixin, TimestampMixin):

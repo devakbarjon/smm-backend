@@ -3,8 +3,8 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from decimal import Decimal
 
-from app.db.base import Base
-from app.db.mixins import TimestampMixin
+from app.database.base import Base
+from app.database.mixins import TimestampMixin
 
 
 class User(Base, TimestampMixin):

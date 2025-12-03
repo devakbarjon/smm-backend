@@ -16,6 +16,14 @@ class BaseRepository:
         await self.session.delete(instance)
         await self.session.commit()
 
+    async def update(self, instance, **fields):
+        for key, value in fields.items():
+            setattr(instance, key, value)
+
+        await self.session.commit()
+        await self.session.refresh(instance)
+        return instance
+
     async def get_one(self, model, **filters):
         stmt = select(model).filter_by(**filters)
         result = await self.session.execute(stmt)

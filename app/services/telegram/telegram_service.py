@@ -9,7 +9,7 @@ from app.core.logging import logger
 
 from app.core.config import settings
 
-from app.schemas.user import TelegramUser
+from app.schemas.telegram import TelegramUser
 
 
 async def check_init_data(init_data: str) -> bool | None:
