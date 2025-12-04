@@ -5,6 +5,8 @@ from app.dtos.smm_service import ServiceData
 
 from .smm_service import smm_service
 
+from app.core.logging import logger
+
 class ServiceUpdater:
     def __init__(self, repo: ServiceRepository, settings_repo: SettingRepository):
         self.repo = repo
@@ -16,22 +18,25 @@ class ServiceUpdater:
         settings = await self.settings_repo.get_settings()
 
         for service in services:
-            await self.update_service(
-                ServiceData(
-                    service=service.service,
-                    name=service.name,
-                    description=service.description,
-                    type=service.type,
-                    price=service.rate * (service.rate / 100 * settings.markup_rate),
-                    orginal_price=service.rate,
-                    min_amount=service.min,
-                    max_amount=service.max,
-                    time=service.time,
-                    refill=service.refill,
-                    cancel=service.cancel,
-                    language="ru"
+            try:
+                await self.update_service(
+                    ServiceData(
+                        service=service.service,
+                        name=service.name,
+                        description=service.description,
+                        type=service.type,
+                        price=service.rate * (service.rate / 100 * settings.markup_rate),
+                        orginal_price=service.rate,
+                        min_amount=service.min,
+                        max_amount=service.max,
+                        time=service.time,
+                        refill=service.refill,
+                        cancel=service.cancel,
+                        language="ru"
+                    )
                 )
-            )
+            except Exception as ex:
+                logger.error(f"Error while updating service [{service.service}] data: {ex}")
 
     async def update_service(self, service_data: ServiceData):
         service_in_db = await self.repo.get_by_api_service_id(api_service_id=service_data.service)

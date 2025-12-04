@@ -13,10 +13,13 @@ from app.api.v1.router import router as api_v1_router
 
 from app.services.telegram.bot_base import bot
 
+from app.utils.scheduler.base import start_scheduler
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_models()  # Initialize database models
+    start_scheduler()
     yield
     await bot.session.close()
     logger.info("Shutting down...")

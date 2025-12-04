@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     APP_NAME: str = "Smm TMA"
     API_V1_STR: str = "/api/v1"
+    SECRET_KEY: str = SecretStr("secret-key")
     
     # Database
     DATABASE_NAME: str = "database"
@@ -24,7 +25,8 @@ class Settings(BaseSettings):
     DATABASE_ECHO: bool = False
 
     # Ton
-    TON_CENTER_API_KEY: SecretStr = SecretStr("your-ton-center-api-key")
+    TON_API_KEY: SecretStr = SecretStr("your-ton-api-key") # https://tonconsole.com/
+    TON_CENTER_API_KEY: SecretStr = SecretStr("your-ton-center-api-key") # https://toncenter.com/
     TON_WALLET_MNEMONIC: SecretStr = SecretStr("your-ton-wallet-mnemonic")
     
     # Bot
