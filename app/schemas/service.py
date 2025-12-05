@@ -1,14 +1,11 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, ConfigDict
 
 
-@dataclass
-class ServiceData:
-    api_service_id: int
+class ServiceOut(BaseModel):
     name: str
     description: str
     type: str
     price: float
-    original_price: float
     min_amount: int
     max_amount: int
     time: str
@@ -16,3 +13,5 @@ class ServiceData:
     refill: bool = False
     cancel: bool = False
     language: str = "ru"
+
+    model_config = ConfigDict(from_attributes=True)

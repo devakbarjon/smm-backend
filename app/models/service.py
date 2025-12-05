@@ -1,11 +1,11 @@
-from sqlalchemy import String, Integer, Numeric, ForeignKey
+from sqlalchemy import String, Integer, Numeric, ForeignKey, Text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from decimal import Decimal
 
 from app.database.base import Base
 from app.database.mixins import IdMixin, TimestampMixin
 
-class Service(Base, IdMixin, TimestampMixin):
+class Service(IdMixin, Base, TimestampMixin):
     __tablename__ = "services"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -13,7 +13,7 @@ class Service(Base, IdMixin, TimestampMixin):
 
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2)) # Our price per 1000 units
     original_price: Mapped[Decimal] = mapped_column(Numeric(10, 2)) # Real price from SMM panel per 1000 units
-    description: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     language: Mapped[str | None] = mapped_column(String(10), default="ru") # Detail's language
     time : Mapped[str | None] = mapped_column(String(100), nullable=True) # Approximate time to complete the order
     refill: Mapped[bool] = mapped_column(default=False)

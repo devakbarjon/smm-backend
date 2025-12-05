@@ -1,5 +1,7 @@
 import httpx
+
 from app.core.config import settings
+from app.core.logging import logger
 
 
 TONAPI_BASE = "https://tonapi.io/v2"
@@ -16,5 +18,5 @@ async def fetch_transaction_details(tx_hash: str):
             resp.raise_for_status()
             return resp.json()
     except httpx.HTTPError as e:
-        print(f"Error fetching transaction details: {e}")
+        logger.error(f"Error fetching transaction details: {e}")
         return None

@@ -26,7 +26,4 @@ class OrderRepository(BaseRepository):
         if not order:
             return None
 
-        order.is_done = True
-        await self.session.commit()
-        await self.session.refresh(order)
-        return order
+        return await self.update(Order, is_done=True)

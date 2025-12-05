@@ -26,7 +26,13 @@ class ServiceRepository(BaseRepository):
     async def get_all_services(self) -> list[Service]:
         return await self.get_all(Service)
     
-    async def update_service(self, service: Service, service_data: ServiceData):
+    async def get_services_by_category_id(self, category_id: int | str) -> list[Service]:
+        return await self.get_all(Service, category_id=category_id)
+    
+    async def update_service(self, service: Service, service_data: ServiceData) -> Service | None:
         service_dict = asdict(service_data)
+        
+        service_dict.pop("id", None)
+        service_dict.pop("api_service_id", None)
 
-        return await self.update(service, service_dict)
+        return await self.update(service, **service_dict)

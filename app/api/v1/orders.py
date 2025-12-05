@@ -11,8 +11,8 @@ from app.dependencies.repositories import get_user_repo
 from app.services.telegram.telegram_service import authorize_user
 
 
-
 router = APIRouter()
+
 
 @router.post("/", response_model=ResponseSchema[OrderOut])
 async def create_order(

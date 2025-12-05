@@ -1,7 +1,7 @@
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 
-from core.scheduler import scheduler
+from app.core.scheduler import scheduler
 
 from .tasks.smm_services import update_service_data
 

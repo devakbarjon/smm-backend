@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Integer, Boolean, func
+from sqlalchemy import DateTime, Integer, Boolean, func
 from sqlalchemy.orm import mapped_column, Mapped
 
 
@@ -8,7 +8,7 @@ class IdMixin:
 
 class TimestampMixin:
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
 
 class IsActiveMixin:

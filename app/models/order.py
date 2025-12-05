@@ -5,7 +5,7 @@ from app.database.base import Base
 from app.database.mixins import IdMixin, TimestampMixin
 
 
-class Order(Base, IdMixin, TimestampMixin):
+class Order(IdMixin, Base, TimestampMixin):
     __tablename__ = "orders"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))

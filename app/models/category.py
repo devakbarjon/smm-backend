@@ -5,7 +5,7 @@ from app.database.base import Base
 from app.database.mixins import IdMixin, TimestampMixin
 
 
-class Category(Base, IdMixin, TimestampMixin):
+class Category(IdMixin, Base, TimestampMixin):
     __tablename__ = "categories"
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)

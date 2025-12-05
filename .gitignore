@@ -5,6 +5,9 @@ env/
 # Ignore logs
 app/data/logs/*.log
 
+# Ignore all rotated logs
+app/data/logs/app.log.*
+
 .idea/
 # Ignore Python cache files
 __pycache__/   

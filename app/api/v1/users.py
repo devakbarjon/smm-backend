@@ -8,6 +8,8 @@ from app.dependencies.repositories import get_user_repo
 
 from app.services.telegram.telegram_service import authorize_user
 
+from app.utils.helper import response
+
 router = APIRouter()
 
 
@@ -40,4 +42,7 @@ async def user_me(
             ref_id=ref_id
         )
 
-    return ResponseSchema[UserOut](data=UserOut.model_validate(user))
+    return response(
+        data=user,
+        model=UserOut
+    )

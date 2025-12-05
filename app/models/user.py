@@ -37,8 +37,6 @@ class User(Base, TimestampMixin):
     ref_code: Mapped[str] = mapped_column(String, unique=True, index=True)
     ref_income: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0.00"))
     
-
-    transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):

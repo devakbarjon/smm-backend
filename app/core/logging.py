@@ -22,7 +22,8 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(),  # console
         file_handler              # file
-    ]
+    ],
+    encoding="UTF-8"
 )
 
 logger = logging.getLogger(__name__)

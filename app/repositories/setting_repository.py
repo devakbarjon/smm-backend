@@ -7,4 +7,4 @@ class SettingRepository(BaseRepository):
     
     async def get_settings(self) -> Setting:
 
-        return self.get_one(Setting)
+        return await self.get_one(Setting)
