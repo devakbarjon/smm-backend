@@ -1,5 +1,9 @@
+import asyncio
+
 from app.repositories.platform_repository import PlatformRepository
 from app.repositories.setting_repository import SettingRepository
+
+from app.utils.scheduler.tasks.smm_services import update_service_data
 
 from app.database.base import AsyncSessionLocal
 
@@ -73,3 +77,7 @@ async def start_seed():
 
         await settings_seeder.seed()
         await platform_seeder.seed()
+        await update_service_data()
+
+
+asyncio.run(start_seed())

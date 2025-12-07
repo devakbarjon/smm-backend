@@ -23,6 +23,9 @@ pip install -r requirements.txt || { echo "Dependency installation failed"; exit
 echo "Running Alembic migrations..."
 alembic upgrade head || echo "Alembic not configured — skipping"
 
+echo "Running seeds..."
+python -python -m app.core.seeders.models_seeder || { echo "Seeding failed"; exit 1; }
+
 echo "Restarting service..."
 sudo systemctl restart "$SERVICE_NAME" || { echo "Failed to restart service"; exit 1; }
 
