@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from app.schemas.base import ResponseSchema
 from app.schemas.service import ServiceOut
@@ -13,9 +13,8 @@ from app.utils.helper import list_response
 router = APIRouter()
 
 
-
 @router.get("/{category_id}")
-async def get_services_by_catgery_id(
+async def get_services_by_category_id(
     category_id: int,
     repo: ServiceRepository = Depends(get_service_repo)
 ) -> ResponseSchema[List[ServiceOut]]:
@@ -23,5 +22,6 @@ async def get_services_by_catgery_id(
     
     return list_response(
         data=services,
-        model=ServiceOut
+        model=ServiceOut,
+        message="All services fetched successfully."
     )

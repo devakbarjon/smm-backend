@@ -21,5 +21,6 @@ async def get_categories_by_platform_id(
 
     return list_response(
         data=services,
-        model=CategoryOut
+        model=CategoryOut,
+        message="All categories fetched successfully."
     )

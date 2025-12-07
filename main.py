@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from app.core.config import settings
 from app.core.exceptions import http_error_handler, validation_error_handler
 from app.core.logging import logger
-from app.core.seeders.platform_seeder import seed_platforms
+from app.core.seeders.models_seeder import start_seed
 
 from app.api.v1.router import router as api_v1_router
 
@@ -18,7 +18,7 @@ from app.utils.scheduler.tasks.smm_services import update_service_data
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await seed_platforms()
+    await start_seed()
     await update_service_data() # Updating smm service data when starting app
     start_scheduler()
     yield

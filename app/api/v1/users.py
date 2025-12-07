@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.schemas.base import ResponseSchema
-from app.schemas.user import UserIn, UserOut
+from app.schemas.user import UserIn, UserOut, UserFavoriteIn, UserFavoriteOut, UserLanguageIn, UserLanguageOut
 
 from app.repositories.user_repository import UserRepository
 from app.dependencies.repositories import get_user_repo
@@ -13,19 +13,16 @@ from app.utils.helper import response
 router = APIRouter()
 
 
-@router.post("/")
-async def user_me(
-    user_in: UserIn,
-    user_repo: UserRepository = Depends(get_user_repo),
+@router.post("/", response_model=ResponseSchema[UserOut])
+async def get_user(
+        user_in: UserIn,
+        user_repo: UserRepository = Depends(get_user_repo)
 ) -> ResponseSchema[UserOut]:
     """
     Create or get a user.
     """
-    
-    user_data = await authorize_user(user_in.init_data)
 
-    if not user_data:
-        raise HTTPException(status_code=401, detail="Invalid init_data signature!")
+    user_data = await authorize_user(user_in.init_data)
 
     user = await user_repo.get_by_id(user_data.user_id)
 
@@ -45,4 +42,61 @@ async def user_me(
     return response(
         data=user,
         model=UserOut
+    )
+
+
+@router.post("/add_favorite", response_model=ResponseSchema[UserFavoriteOut])
+async def add_favorite_service(
+        favorite_in: UserFavoriteIn,
+        user_repo: UserRepository = Depends(get_user_repo)
+) -> ResponseSchema[UserFavoriteOut]:
+    """
+    Add a favorite service.
+    """
+
+    user_data = await authorize_user(init_data=favorite_in.init_data)
+
+    user = await user_repo.get_by_id(user_data.user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found!")
+
+    user_services = await user_repo.add_favorite_service(
+        user_id=user.user_id,
+        service_id=favorite_in.service_id
+    )
+
+    return response(
+        data=user_services,
+        model=UserFavoriteOut,
+        message="Service added to favorites successfully"
+    )
+
+
+@router.post("/language", response_model=ResponseSchema[UserLanguageOut])
+async def change_language(
+        language_in: UserLanguageIn,
+        user_repo: UserRepository = Depends(get_user_repo)
+) -> ResponseSchema[UserLanguageOut]:
+    """
+    Change user language.
+    """
+
+    user_data = await authorize_user(init_data=language_in.init_data)
+
+    user = await user_repo.get_by_id(user_data.user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found!")
+
+    if language_in.lang not in ["ru", "en"]:
+        raise HTTPException(status_code=400, detail="Invalid language!")
+
+    user.lang = language_in.lang
+    await user_repo.update(user)
+
+    return response(
+        data=user.lang,
+        model=UserLanguageOut,
+        message="Language updated successfully"
     )

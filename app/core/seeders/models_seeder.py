@@ -1,4 +1,5 @@
 from app.repositories.platform_repository import PlatformRepository
+from app.repositories.setting_repository import SettingRepository
 
 from app.database.base import AsyncSessionLocal
 
@@ -46,8 +47,29 @@ class PlatformSeeder:
             )
 
 
-async def seed_platforms():
+class SettingsSeeder:
+    def __init__(self, setting_repo: SettingRepository):
+        self.setting_repo = setting_repo
+
+    async def seed(self):
+        existing = await self.setting_repo.get_settings()
+
+        if existing:
+            return
+
+        await self.setting_repo.create(
+            markup_rate=5,
+            ton_rate=1.6
+        )
+
+
+async def start_seed():
     async with AsyncSessionLocal() as session:
         platform_repo = PlatformRepository(session)
-        seeder = PlatformSeeder(platform_repo)
-        await seeder.seed()
+        settings_repo = SettingRepository(session)
+
+        settings_seeder = SettingsSeeder(settings_repo)
+        platform_seeder = PlatformSeeder(platform_repo)
+
+        await settings_seeder.seed()
+        await platform_seeder.seed()

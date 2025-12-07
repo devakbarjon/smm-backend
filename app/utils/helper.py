@@ -5,6 +5,7 @@ from typing import List
 
 from pydantic import TypeAdapter
 
+from app.enums.language import LangEnum
 from app.schemas.base import ResponseSchema, T
 
 
@@ -28,3 +29,10 @@ def response(data: T, model: type[T], message: str = None):
     adapter = TypeAdapter(model)
     validated = adapter.validate_python(data)
     return ResponseSchema[T](data=validated, message=message)
+
+
+def validate_language(lang) -> LangEnum:
+    try:
+        return LangEnum(lang)
+    except Exception:
+        return LangEnum.ru

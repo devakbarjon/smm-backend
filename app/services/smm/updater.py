@@ -6,12 +6,16 @@ from app.repositories.category_repository import CategoryRepository
 from app.models.category import Category
 
 from app.dtos.smm_service import ServiceData
+
 from app.utils.helper import convert_to_decimal
+
+from app.core.logging import logger
+
+from app.enums.language import LangEnum
 
 from .smm_service import smm_service
 from.detector import detect_platform
 
-from app.core.logging import logger
 
 class ServiceUpdater:
     def __init__(
@@ -53,7 +57,7 @@ class ServiceUpdater:
                         category_id=category.id,
                         refill=service.refill,
                         cancel=service.cancel,
-                        language="ru"
+                        language=LangEnum.ru
                     )
                 )
 

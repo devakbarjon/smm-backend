@@ -1,10 +1,13 @@
-from sqlalchemy import String, BigInteger, Numeric, ForeignKey
+from sqlalchemy import String, BigInteger, Numeric, ForeignKey, Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from decimal import Decimal
 
 from app.database.base import Base
 from app.database.mixins import TimestampMixin
+
+from app.enums.language import LangEnum
 
 
 class User(Base, TimestampMixin):
@@ -12,10 +15,13 @@ class User(Base, TimestampMixin):
 
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
 
-    full_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    full_name: Mapped[str | None] = mapped_column(String, nullable=False)
     username: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    lang: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    lang: Mapped[LangEnum | None] = mapped_column(
+        Enum(LangEnum, name="lang_enum"),
+        default=LangEnum.ru
+    )
 
     balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0.00"))
 
@@ -35,9 +41,23 @@ class User(Base, TimestampMixin):
         cascade="all, delete-orphan"
     )
     ref_code: Mapped[str] = mapped_column(String, unique=True, index=True)
-    ref_income: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal("0.00"))
-    
-    orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
+    ref_income: Mapped[Decimal] = mapped_column(Numeric(12, 2), default=Decimal(0.00))
+
+    favorite_services: Mapped[list[int]] = mapped_column(ARRAY(BigInteger), default=list)
+
+    orders = relationship(
+        "Order",
+        back_populates="user",
+        cascade="save-update, merge",
+        passive_deletes=True
+    )
+
+    transactions = relationship(
+        "Transaction",
+        back_populates="user",
+        cascade="save-update, merge",
+        passive_deletes=True
+    )
 
     def __repr__(self):
         return f"<User(id={self.user_id}, username={self.username})>"
