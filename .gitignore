@@ -10,6 +10,8 @@ app/data/logs/app.log.*
 
 .idea/
 # Ignore Python cache files
-__pycache__/   
+__pycache__/
+
+deploy.sh
 
 *.pyc

@@ -3,13 +3,18 @@ from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def get_env_file():
+    env = os.getenv("ENV", "development")
+    return f".env.{env}"
+
+
 class Settings(BaseSettings):
-    ENVIRONMENT: str = os.getenv("ENV", "development")
-    env_file: str = f".env.{ENVIRONMENT}"
     model_config = SettingsConfigDict(
-        env_file=env_file,
+        env_file=get_env_file(),
         env_file_encoding="utf-8"
     )
+
+    ENVIRONMENT: str = os.getenv("ENV", "development")
     
     # App
     DEBUG: bool = False
