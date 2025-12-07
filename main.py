@@ -8,6 +8,7 @@ from app.core.exceptions import http_error_handler, validation_error_handler
 from app.core.logging import logger
 
 from app.api.v1.router import router as api_v1_router
+from app.middlewares.cors_middleware import setup_cors
 
 from app.services.telegram.bot_base import bot
 
@@ -20,6 +21,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+setup_cors(app)
 
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 
