@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     APP_NAME: str = "Smm TMA"
     API_V1_STR: str = "/api/v1"
-    SECRET_KEY: SecretStr = SecretStr("secret-key")
+    SECRET_KEY: SecretStr = os.getenv("SECRET_KEY", "secret-key")
     
     # Database
     DATABASE_NAME: str = "database"

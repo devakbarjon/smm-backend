@@ -36,3 +36,7 @@ def validate_language(lang) -> LangEnum:
         return LangEnum(lang)
     except Exception:
         return LangEnum.ru
+
+
+def calculate_cost(price: Decimal, quantity: int) -> Decimal:
+    return (price / Decimal(1000)) * quantity

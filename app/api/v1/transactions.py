@@ -1,9 +1,12 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
+from starlette.exceptions import HTTPException
+from starlette import status
 
-from app.dependencies.repositories import get_transaction_repo
+from app.dependencies.repositories import get_transaction_repo, get_user_repo
 from app.repositories.transaction_repository import TransactionRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.base import ResponseSchema
 from app.schemas.transaction import TransactionOut
 from app.schemas.user import UserIn
@@ -16,7 +19,8 @@ router = APIRouter()
 @router.post("/", response_model=ResponseSchema[List[TransactionOut]])
 async def get_transactions(
         user_in: UserIn,
-        repo: TransactionRepository = Depends(get_transaction_repo)
+        repo: TransactionRepository = Depends(get_transaction_repo),
+        user_repo: UserRepository = Depends(get_user_repo)
 ) -> ResponseSchema[List[TransactionOut]]:
     """
     Get all transactions for a user.
@@ -24,12 +28,12 @@ async def get_transactions(
 
     user_data = await authorize_user(user_in.init_data)
 
-    user = await authorize_user(user_data)
+    user = await user_repo.get_by_id(user_data.user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
 
-    transactions = await repo.get_by_user_id(user_id=user_data.user_id)
+    transactions = await repo.get_by_user_id(user_id=user.user_id)
 
     return list_response(
         data=transactions,

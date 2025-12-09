@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from app.repositories.base import BaseRepository
 from app.models.order import Order
 
@@ -9,14 +11,16 @@ class OrderRepository(BaseRepository):
             service_id: int,
             parent_order_id: int,
             quantity: int,
-            link: str
+            link: str,
+            cost: Decimal
     ) -> Order:
         order = Order(
             user_id=user_id,
             service_id=service_id,
             parent_order_id=parent_order_id,
             quantity=quantity,
-            link=link
+            link=link,
+            cost=cost
         )
         return await self.add(order)
 

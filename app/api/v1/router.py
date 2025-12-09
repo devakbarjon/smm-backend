@@ -7,6 +7,7 @@ from  .platforms import  router as platform_router
 from  .categories import router as category_router
 from .deposit import router as deposit_router
 from .transactions import router as transactions_router
+from .webhooks import router as webhooks_router
 
 router = APIRouter()
 
@@ -17,3 +18,4 @@ router.include_router(platform_router, prefix="/platforms", tags=["platforms"])
 router.include_router(category_router, prefix="/categories", tags=["categories"])
 router.include_router(deposit_router, prefix="/deposit", tags=["deposit"])
 router.include_router(transactions_router, prefix="/transactions", tags=["transactions"])
+router.include_router(webhooks_router, prefix="/webhook", tags=["webhook"])

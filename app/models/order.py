@@ -1,4 +1,6 @@
-from sqlalchemy import String, Integer, ForeignKey, BigInteger
+from decimal import Decimal
+
+from sqlalchemy import String, Integer, ForeignKey, BigInteger, Numeric
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.database.base import Base
@@ -12,6 +14,7 @@ class Order(IdMixin, Base, TimestampMixin):
 
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     link: Mapped[str] = mapped_column(String(500), nullable=False)
+    cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
 
     is_done: Mapped[bool] = mapped_column(default=False)
     parent_order_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
+from starlette.exceptions import HTTPException
+from starlette import status
 
 from app.schemas.base import ResponseSchema
 from app.schemas.deposit import DepositIn
@@ -34,7 +36,7 @@ async def deposit_stars(
     user = await user_repo.get_by_id(user_data.user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
 
     transaction = await repo.create(
         user_id=user.user_id,

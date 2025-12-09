@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
+from starlette.exceptions import HTTPException
+from starlette import status
 
 from app.schemas.base import ResponseSchema
 from app.schemas.user import UserIn, UserOut, UserFavoriteIn, UserFavoriteOut, UserLanguageIn, UserLanguageOut
@@ -65,7 +67,7 @@ async def get_favorites(
     user = await user_repo.get_by_id(user_data.user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return response(
         data={"favorite_services": user.favorite_services},
@@ -88,7 +90,7 @@ async def add_favorite_service(
     user = await user_repo.get_by_id(user_data.user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
 
     user_services = await user_repo.update_favorite_service(
         user_id=user.user_id,
@@ -116,7 +118,7 @@ async def delete_favorite_service(
     user = await user_repo.get_by_id(user_data.user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
 
     user_services = await user_repo.update_favorite_service(
         user_id=user.user_id,
@@ -145,10 +147,10 @@ async def change_language(
     user = await user_repo.get_by_id(user_data.user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found!")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
 
     if language_in.lang not in ["ru", "en"]:
-        raise HTTPException(status_code=400, detail="Invalid language!")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid language!")
 
     user.lang = language_in.lang
     await user_repo.update(user)
