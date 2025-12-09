@@ -1,6 +1,7 @@
 from . base import smm_api
 
 from soc_proof.models import Service, OrderStatus, AccountBalance
+from soc_proof.errors import NotEnoughFundsError
 
 
 class SMMService:
@@ -9,16 +10,20 @@ class SMMService:
 
     async def create_order(self, service_id: int, link: str, quantity: int) -> str | None:
 
-        order_id = await self.smm_api.add_order(
-            service_id=service_id,
-            link=link,
-            quantity=quantity
-        )
+        try:
+            order_id = await self.smm_api.add_order(
+                service=service_id,
+                link=link,
+                quantity=quantity
+            )
 
-        return order_id
+            return order_id
+        except NotEnoughFundsError:
+
+            return None
     
-    async def get_order_status(self, order_id: int) -> OrderStatus:
-        order_status = await self.smm_api.get_order_status(order_id=order_id)
+    async def get_order_status(self, orders: str | list) -> OrderStatus:
+        order_status = await self.smm_api.get_status(orders=orders)
 
         return order_status
     

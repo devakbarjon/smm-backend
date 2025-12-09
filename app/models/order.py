@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, ForeignKey
+from sqlalchemy import String, Integer, ForeignKey, BigInteger
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.database.base import Base
@@ -14,7 +14,7 @@ class Order(IdMixin, Base, TimestampMixin):
     link: Mapped[str] = mapped_column(String(500), nullable=False)
 
     is_done: Mapped[bool] = mapped_column(default=False)
-    order_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    parent_order_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
 
     service = relationship("Service", back_populates="orders")
 

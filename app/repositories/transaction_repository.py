@@ -16,6 +16,7 @@ class TransactionRepository(BaseRepository):
         service: str,
         user_id: int,
         status: TransactionStatusEnum = TransactionStatusEnum.pending,
+        currency: str = "RUB",
         transaction_hash: str | None = None,
         payment_link: str | None = None
     ) -> Transaction:
@@ -25,6 +26,7 @@ class TransactionRepository(BaseRepository):
             service=service,
             user_id=user_id,
             status=status,
+            currency=currency,
             transaction_hash=transaction_hash,
             payment_link=payment_link
         )

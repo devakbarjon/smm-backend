@@ -40,7 +40,8 @@ async def deposit_stars(
         user_id=user.user_id,
         amount=convert_to_decimal(deposit_in.amount),
         rub_amount=convert_to_decimal(deposit_in.amount),
-        service="stars"
+        service="telegram",
+        currency="STARS"
     )
 
     invoice_link = await create_stars_invoice(

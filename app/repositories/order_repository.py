@@ -7,14 +7,14 @@ class OrderRepository(BaseRepository):
             self,
             user_id: int,
             service_id: int,
-            oder_id: int,
+            parent_order_id: int,
             quantity: int,
             link: str
     ) -> Order:
         order = Order(
             user_id=user_id,
             service_id=service_id,
-            order_id=oder_id,
+            parent_order_id=parent_order_id,
             quantity=quantity,
             link=link
         )

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from soc_proof.models import OrderStatus
+
 from app.schemas.base import ResponseSchema
 from app.schemas.order import OrderIn, OrderOut, OrderStatusOut, OrderStatusListOut, OrderStatusIn
 
@@ -46,7 +48,7 @@ async def create_order(
     order = await order_repo.create(
         user_id=user.user_id,
         service_id=order_in.service_id,
-        oder_id=parent_order_id,
+        parent_order_id=int(parent_order_id),
         link=order_in.link,
         quantity=order_in.quantity
     )
@@ -86,8 +88,21 @@ async def get_order_status(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found!")
 
+    parent_order_list = await smm_service.get_order_status(orders=str(order.parent_order_id))
+    parent_order: OrderStatus = parent_order_list[0] if parent_order_list else None
+
+    order_out = OrderStatusOut(
+        id=order.id,
+        quantity=order.quantity,
+        link=order.link,
+        service_id=order.service_id,
+        charge=parent_order.charge,
+        status=parent_order.status.lower(),
+        remains=parent_order.remains
+    )
+
     return response(
-        data=order,
+        data=order_out,
         model=OrderStatusOut,
         message="Order status fetched successfully"
     )

@@ -68,7 +68,7 @@ async def get_favorites(
         raise HTTPException(status_code=404, detail="User not found")
 
     return response(
-        data=await user.favorites,
+        data={"favorite_services": user.favorite_services},
         model=UserFavoriteOut,
         message="Favorites fetched successfully"
     )
@@ -96,7 +96,7 @@ async def add_favorite_service(
     )
 
     return response(
-        data=user_services,
+        data={"favorite_services": user_services},
         model=UserFavoriteOut,
         message="Service added to favorites successfully"
     )
@@ -125,7 +125,7 @@ async def delete_favorite_service(
     )
 
     return response(
-        data=user_services,
+        data={"favorite_services": user_services},
         model=UserFavoriteOut,
         message="Service deleted from favorites successfully"
     )
@@ -154,7 +154,7 @@ async def change_language(
     await user_repo.update(user)
 
     return response(
-        data=user.lang,
+        data={"lang": user.lang},
         model=UserLanguageOut,
         message="Language updated successfully"
     )

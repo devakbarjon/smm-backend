@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from decimal import Decimal
 
@@ -17,8 +17,10 @@ class TransactionOut(BaseModel):
     id: int
     amount: Decimal
     rub_amount: Decimal
-    transaction_hash: str
+    transaction_hash: str | None = None
     service: str
     status: TransactionStatusEnum
     currency: str
     payment_link: str | None
+
+    model_config = ConfigDict(from_attributes=True)

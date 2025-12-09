@@ -9,22 +9,23 @@ class OrderIn(TMAInitData):
 
 
 class OrderOut(BaseModel):
-    order_id: str
+    id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class OrderStatusIn(TMAInitData):
-    order_id: str
+    order_id: int
 
 
 class OrderStatusOut(BaseModel):
-    order_id: str
+    id: int
+    quantity: int
+    link: str
+    service_id: int
     charge: float
     status: str
     remains: int
-
-    model_config = ConfigDict(from_attributes=True)
 
 
 class OrderStatusListOut(BaseModel):

@@ -47,7 +47,7 @@ class UserRepository(BaseRepository):
             user.favorite_services.append(service_id)
 
         if service_id in user.favorite_services and is_delete:
-            user.favorite_services.pop(service_id)
+            user.favorite_services.remove(service_id)
 
         flag_modified(user, "favorite_services")
         await self.update(user)

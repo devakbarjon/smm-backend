@@ -15,7 +15,7 @@ from app.schemas.telegram import TelegramUser
 from app.utils.helper import validate_language
 
 
-async def check_init_data(init_data: str) -> bool | None:
+def check_init_data(init_data: str) -> bool | None:
     """
     Authenticates a user using Telegram Web App initData.
     
@@ -28,13 +28,13 @@ async def check_init_data(init_data: str) -> bool | None:
     if not init_data:
         return None
     
-    return await check_webapp_signature(
+    return check_webapp_signature(
         init_data=init_data,
         token=settings.BOT_TOKEN.get_secret_value()
     )
 
 
-async def extract_init_data(init_data: str) -> TelegramUser | None:
+def extract_init_data(init_data: str) -> TelegramUser | None:
     """
     Extracts user information from Telegram Web App initData without authentication.
     
@@ -63,7 +63,7 @@ async def authorize_user(init_data: str):
     if not check_init_data(init_data):
         raise HTTPException(status_code=401, detail="Invalid init_data signature!")
 
-    return await extract_init_data(init_data)
+    return extract_init_data(init_data)
 
 
 async def check_is_bot_admin(channel_id: int) -> bool:

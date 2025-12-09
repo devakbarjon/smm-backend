@@ -1,11 +1,9 @@
 from fastapi import Request
 
-from main import app
 from app.core.config import settings
 from app.core.logging import logger
 
 
-@app.middleware("http")
 async def log_requests(request: Request, call_next):
     if settings.ENVIRONMENT == "development":
         client_host = request.client.host
