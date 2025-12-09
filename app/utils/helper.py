@@ -1,5 +1,5 @@
 from decimal import Decimal
-from random import random
+import random
 import string
 from typing import List
 
