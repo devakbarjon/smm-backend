@@ -9,14 +9,23 @@ from app.utils.helper import random_string
 
 class UserRepository(BaseRepository):
 
-    async def create(self, user_id: int, ref_id: int | None, lang: str) -> User:
+    async def create(
+            self,
+            user_id: int,
+            ref_id: int | None,
+            lang: str,
+            full_name: str,
+            username: str | None = None
+    ) -> User:
         ref_code = random_string(10)
 
         user = User(
             user_id=user_id,
             ref_code=ref_code,
             ref_id=ref_id,
-            lang=lang
+            lang=lang,
+            full_name=full_name,
+            username=username
         )
         
         return await self.add(user)

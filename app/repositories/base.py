@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 
 class BaseRepository:
@@ -35,6 +35,7 @@ class BaseRepository:
         return result.scalars().all()
 
     async def get_count(self, model, **filters):
-        stmt = select(model).filter_by(**filters)
+        stmt = select(func.count()).select_from(model).filter_by(**filters)
         result = await self.session.execute(stmt)
-        return result.scalar().count()
+        count = result.scalar()
+        return count or 0

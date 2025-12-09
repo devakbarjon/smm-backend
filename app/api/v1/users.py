@@ -37,7 +37,9 @@ async def get_user(
         user = await user_repo.create(
             user_id=user_data.user_id,
             ref_id=ref_id,
-            lang=user_data.lang_code
+            lang=user_data.lang_code,
+            full_name=user_data.full_name,
+            username=user_data.username
         )
 
     user.ref_count = await user_repo.get_ref_count(user_id=user.user_id)
