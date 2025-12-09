@@ -17,6 +17,9 @@ async def get_categories_by_platform_id(
         platform_id: int,
         repo: CategoryRepository = Depends(get_category_repo)
 ) -> ResponseSchema[List[CategoryOut]]:
+    """
+    Get all categories by platform ID.
+    """
     services = await repo.get_categories_by_platform(platform_id=platform_id)
 
     return list_response(

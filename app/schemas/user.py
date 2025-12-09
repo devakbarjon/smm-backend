@@ -16,6 +16,7 @@ class UserOut(BaseModel):
     lang: LangEnum
     balance: Decimal
     ref_code: str
+    ref_count: int
     ref_income: Decimal
 
     model_config = ConfigDict(from_attributes=True)

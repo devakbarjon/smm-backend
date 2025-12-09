@@ -33,3 +33,8 @@ class BaseRepository:
         stmt = select(model).filter_by(**filters)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def get_count(self, model, **filters):
+        stmt = select(model).filter_by(**filters)
+        result = await self.session.execute(stmt)
+        return result.scalar().count()

@@ -36,12 +36,39 @@ async def get_user(
 
         user = await user_repo.create(
             user_id=user_data.user_id,
-            ref_id=ref_id
+            ref_id=ref_id,
+            lang=user_data.lang_code
         )
+
+    user.ref_count = await user_repo.get_ref_count(user_id=user.user_id)
 
     return response(
         data=user,
-        model=UserOut
+        model=UserOut,
+        message="User fetched successfully"
+    )
+
+
+@router.post("/favorites", response_model=ResponseSchema[UserFavoriteOut])
+async def get_favorites(
+        user_in: UserIn,
+        user_repo: UserRepository = Depends(get_user_repo)
+):
+    """
+    Get a favorite services of user.
+    """
+
+    user_data = await authorize_user(user_in.init_data)
+
+    user = await user_repo.get_by_id(user_data.user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return response(
+        data=await user.favorites,
+        model=UserFavoriteOut,
+        message="Favorites fetched successfully"
     )
 
 
@@ -61,7 +88,7 @@ async def add_favorite_service(
     if not user:
         raise HTTPException(status_code=404, detail="User not found!")
 
-    user_services = await user_repo.add_favorite_service(
+    user_services = await user_repo.update_favorite_service(
         user_id=user.user_id,
         service_id=favorite_in.service_id
     )
@@ -70,6 +97,35 @@ async def add_favorite_service(
         data=user_services,
         model=UserFavoriteOut,
         message="Service added to favorites successfully"
+    )
+
+
+@router.delete("/delete_favorite", response_model=ResponseSchema[UserFavoriteOut])
+async def delete_favorite_service(
+    favorite_in: UserFavoriteIn,
+    user_repo: UserRepository = Depends(get_user_repo)
+) -> ResponseSchema[UserFavoriteOut]:
+    """
+    Delete a favorite service.
+    """
+
+    user_data = await authorize_user(init_data=favorite_in.init_data)
+
+    user = await user_repo.get_by_id(user_data.user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found!")
+
+    user_services = await user_repo.update_favorite_service(
+        user_id=user.user_id,
+        service_id=favorite_in.service_id,
+        is_delete=True
+    )
+
+    return response(
+        data=user_services,
+        model=UserFavoriteOut,
+        message="Service deleted from favorites successfully"
     )
 
 

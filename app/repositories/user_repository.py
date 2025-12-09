@@ -1,4 +1,5 @@
 from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.util import await_only
 
 from app.repositories.base import BaseRepository
 from app.models.user import User
@@ -26,12 +27,23 @@ class UserRepository(BaseRepository):
     async def get_by_ref_code(self, code: str) -> User | None:
         return await self.get_one(User, ref_code=code)
 
-    async def add_favorite_service(self, user_id: int, service_id: int) -> list:
+    async def update_favorite_service(
+            self, user_id: int,
+            service_id: int,
+            is_delete: bool = False
+    ) -> list:
         user = await self.get_by_id(user_id)
 
-        if service_id not in user.favorite_services:
+        if service_id not in user.favorite_services and not is_delete:
             user.favorite_services.append(service_id)
-            flag_modified(user, "favorite_services")
-            await self.update(user)
+
+        if service_id in user.favorite_services and is_delete:
+            user.favorite_services.pop(service_id)
+
+        flag_modified(user, "favorite_services")
+        await self.update(user)
 
         return user.favorite_services
+
+    async def get_ref_count(self, user_id: int) -> int:
+        return await self.get_count(User, ref_id=user_id)

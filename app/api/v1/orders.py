@@ -8,7 +8,10 @@ from app.dependencies.repositories import get_order_repo
 from app.repositories.user_repository import UserRepository
 from app.dependencies.repositories import get_user_repo
 
+from app.services.smm.smm_service import smm_service
 from app.services.telegram.telegram_service import authorize_user
+
+from app.utils.helper import response, list_response
 
 
 router = APIRouter()
@@ -28,21 +31,31 @@ async def create_order(
 
     if not user_data:
         raise HTTPException(status_code=401, detail="Invalid init_data signature!")
-    
 
     user = await user_repo.get_by_id(user_data.user_id)
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found!")
 
-    order = await order_repo.create(
-        user_id=user.user_id,
+    parent_order_id = await smm_service.create_order(
         service_id=order_in.service_id,
         link=order_in.link,
         quantity=order_in.quantity
     )
 
-    return ResponseSchema[OrderOut](data=OrderOut.model_validate(order))
+    order = await order_repo.create(
+        user_id=user.user_id,
+        service_id=order_in.service_id,
+        oder_id=parent_order_id,
+        link=order_in.link,
+        quantity=order_in.quantity
+    )
+
+    return response(
+        data=order,
+        model=OrderOut,
+        message="Order created successfully"
+    )
 
 
 @router.post("/status", response_model=ResponseSchema[OrderStatusOut])
@@ -73,7 +86,11 @@ async def get_order_status(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found!")
 
-    return ResponseSchema[OrderStatusOut](data=OrderStatusOut.model_validate(order))
+    return response(
+        data=order,
+        model=OrderStatusOut,
+        message="Order status fetched successfully"
+    )
 
 
 @router.post("/list", response_model=ResponseSchema[OrderStatusListOut])
@@ -98,6 +115,8 @@ async def list_orders(
 
     orders = await order_repo.get_by_user_id(user_id=user.user_id)
 
-    return ResponseSchema[OrderStatusListOut](data=OrderStatusListOut(
-        orders=[OrderStatusOut.model_validate(order) for order in orders]
-    ))
+    return list_response(
+        data=orders,
+        model=OrderStatusListOut,
+        message="Orders fetched successfully"
+    )

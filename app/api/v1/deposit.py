@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.schemas.base import ResponseSchema
-
 from app.schemas.deposit import DepositIn
 from app.schemas.transaction import TransactionOut
-
 
 from app.dependencies.repositories import get_transaction_repo, get_user_repo
 
@@ -27,6 +25,9 @@ async def deposit_stars(
     repo: TransactionRepository = Depends(get_transaction_repo),
     user_repo: UserRepository = Depends(get_user_repo)
 ) -> ResponseSchema[TransactionOut]:
+    """
+    Create a deposit with stars.
+    """
 
     user_data = await authorize_user(deposit_in.init_data)
 

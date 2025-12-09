@@ -16,6 +16,9 @@ router = APIRouter()
 async def get_all_platforms(
         repo: PlatformRepository = Depends(get_platform_repo)
 ) -> ResponseSchema[List[PlatformOut]]:
+    """
+    Get all platforms.
+    """
     platforms = await repo.get_all_platforms()
 
     return list_response(

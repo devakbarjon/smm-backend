@@ -18,6 +18,9 @@ async def get_services_by_category_id(
     category_id: int,
     repo: ServiceRepository = Depends(get_service_repo)
 ) -> ResponseSchema[List[ServiceOut]]:
+    """
+    Get all services by category ID.
+    """
     services = await repo.get_services_by_category_id(category_id=category_id)
     
     return list_response(

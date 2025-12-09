@@ -7,15 +7,15 @@ class SMMService:
     def __init__(self):
         self.smm_api = smm_api
 
-    async def create_order(self, service_id: int, link: str, quantity: int) -> str:
+    async def create_order(self, service_id: int, link: str, quantity: int) -> str | None:
 
-        order = await self.smm_api.add_order(
+        order_id = await self.smm_api.add_order(
             service_id=service_id,
             link=link,
             quantity=quantity
         )
 
-        return order
+        return order_id
     
     async def get_order_status(self, order_id: int) -> OrderStatus:
         order_status = await self.smm_api.get_order_status(order_id=order_id)

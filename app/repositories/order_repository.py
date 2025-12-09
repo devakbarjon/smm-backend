@@ -3,10 +3,18 @@ from app.models.order import Order
 
 
 class OrderRepository(BaseRepository):
-    async def create(self, user_id: int, service_id: int, quantity: int, link: str) -> Order:
+    async def create(
+            self,
+            user_id: int,
+            service_id: int,
+            oder_id: int,
+            quantity: int,
+            link: str
+    ) -> Order:
         order = Order(
             user_id=user_id,
             service_id=service_id,
+            order_id=oder_id,
             quantity=quantity,
             link=link
         )
