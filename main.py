@@ -28,10 +28,6 @@ app = FastAPI(
 
 setup_middlewares(app)
 
-@app.get("/health", tags=["health"])
-async def health_check():
-    return {"status": "ok"}
-
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 
 app.add_exception_handler(HTTPException, http_error_handler)

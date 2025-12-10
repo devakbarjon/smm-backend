@@ -169,8 +169,8 @@ async def list_orders(
                         remains=parent_order_status.remains
                     ))
 
-    return response(
-        data=OrderStatusListOut(orders=orders_out_list),
+    return list_response(
+        data=orders_out_list,
         model=OrderStatusListOut,
         message="Orders fetched successfully"
     )
