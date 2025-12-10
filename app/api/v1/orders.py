@@ -170,7 +170,7 @@ async def list_orders(
                     ))
 
     return list_response(
-        data=orders_out_list,
+        data={"orders": orders_out_list},
         model=OrderStatusListOut,
         message="Orders fetched successfully"
     )

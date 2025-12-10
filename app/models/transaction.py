@@ -1,4 +1,4 @@
-from sqlalchemy import String, Numeric, ForeignKey, Enum
+from sqlalchemy import String, Numeric, ForeignKey, Enum, Text
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from decimal import Decimal
@@ -12,13 +12,13 @@ from app.enums.status import TransactionStatusEnum
 class Transaction(IdMixin, TimestampMixin, Base):
     __tablename__ = "transactions"
 
-    transaction_hash: Mapped[str] = mapped_column(String(100), nullable=True)
+    transaction_hash: Mapped[str] = mapped_column(Text, nullable=True)
 
     currency: Mapped[str] = mapped_column(String(10), default="RUB")
     amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal(0.00))
     rub_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal(0.00))
     service: Mapped[str] = mapped_column(String(100))
-    payment_link: Mapped[str] = mapped_column(String(100), nullable=True)
+    payment_link: Mapped[str] = mapped_column(Text, nullable=True)
 
     status: Mapped[TransactionStatusEnum] = mapped_column(
         Enum(TransactionStatusEnum, name="status_enum"),
