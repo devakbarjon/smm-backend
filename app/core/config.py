@@ -40,6 +40,9 @@ class Settings(BaseSettings):
 
     # Smm
     SOC_PROOF_API_KEY: SecretStr = SecretStr("your-soc-proof-api-key")  # MAIN API KEY
+
+    # Telegram
+    LOGS_CHAT_ID: int = -100
     
     @property
     def database_url(self) -> str:
