@@ -12,4 +12,4 @@ class Setting(IdMixin, Base):
 
     markup_rate: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     ton_rate: Mapped[Decimal] = mapped_column(Numeric(10, 2))
-    min_deposit_rate: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    min_deposit_rate: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal("0.00"))
