@@ -1,3 +1,5 @@
+import httpx
+
 from tonutils.client import ToncenterV3Client
 from tonutils.wallet import (
     WalletV4R2,
@@ -8,13 +10,14 @@ from app.core.logging import logger
 
 MNEMONIC = settings.TON_WALLET_MNEMONIC.get_secret_value()
 API_KEY = settings.TON_CENTER_API_KEY.get_secret_value()
+TONAPI_BASE = "https://tonapi.io/v2"
 
 client = ToncenterV3Client(api_key=API_KEY, max_retries=1)
 
 wallet, public_key, private_key, mnemonic = WalletV4R2.from_mnemonic(client, MNEMONIC)
 
 
-class TonService:
+class TonServiceClass:
     def __init__(self):
         self.wallet = wallet
 
@@ -25,17 +28,53 @@ class TonService:
         except Exception as e:
             logger.error(f"Failed to get wallet balance: {e}")
             return None
-
-    async def send_transaction(self, to_address: str, amount: int):
+        
+    async def get_transaction(self, tx_hash: str) -> dict | None:
         try:
-            """Send TON to another address."""
-            return await self.wallet.transfer(
-                destination=to_address,
-                amount=amount
-            )
-        except Exception as e:
-            logger.error(f"Failed to send transaction: {e}")
+            """Fetch full transaction data from TonAPI."""
+            async with httpx.AsyncClient() as client:
+                url = f"{TONAPI_BASE}/blockchain/transactions/{tx_hash}"
+                headers = {"Authorization": f"Bearer {settings.TON_API_KEY}"}
+
+                resp = await client.get(
+                    url,
+                    headers=headers
+                )
+                resp.raise_for_status()
+                
+                data = resp.json()
+
+                in_msg = data.get("in_msg", {})
+                return in_msg
+        except httpx.HTTPError as e:
+            logger.error(f"Error fetching transaction details: {e}")
+            return None
+        
+    async def get_ton_rate(self) -> float | None:
+        try:
+            """Fetch current TON to RUB exchange rate."""
+            async with httpx.AsyncClient() as client:
+                url = f"{TONAPI_BASE}/rates"
+                headers = {"Authorization": f"Bearer {settings.TON_API_KEY}"}
+                params = {
+                    "tokens": "ton",
+                    "currencies": "rub"
+                }
+
+                resp = await client.get(
+                    url,
+                    headers=headers,
+                    params=params
+                )
+
+                resp.raise_for_status()
+                data = resp.json()
+
+                rate = data.get("rates", {}).get("TON", {}).get("prices", {}).get("RUB", None)
+                return rate
+        except httpx.HTTPError as e:
+            logger.error(f"Error fetching TON exchange rate: {e}")
             return None
     
 
-TonServices = TonService()
+TonService = TonServiceClass()

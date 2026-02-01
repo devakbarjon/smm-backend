@@ -1,9 +1,10 @@
+from decimal import Decimal
+
 from sqlalchemy.orm.attributes import flag_modified
-from sqlalchemy.util import await_only
 
 from app.repositories.base import BaseRepository
 from app.models.user import User
-
+from app.enums.language import LangEnum
 from app.utils.helper import random_string
 
 
@@ -56,3 +57,12 @@ class UserRepository(BaseRepository):
 
     async def get_ref_count(self, user_id: int) -> int:
         return await self.get_count(User, ref_id=user_id)
+    
+    async def update_balance(self, user: User, amount: float | Decimal) -> User:
+        amount = Decimal(amount)
+        user.balance += amount
+        return await self.update(user)
+    
+    async def update_language(self, user: User, lang: LangEnum) -> User:
+        user.lang = lang
+        return await self.update(user)

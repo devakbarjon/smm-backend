@@ -13,11 +13,11 @@ async def notify(chat_id: int, text: str) -> None:
         logger.error("Failed to send telegram notification", exc_info=ex)
 
 
-async def notify_admin(message: str) -> None:
+async def notify_admin(text: str) -> None:
     try:
         await bot.send_message(
             chat_id=settings.LOGS_CHAT_ID,
-            message=message
+            text=text
         )
     except Exception as ex:
         logger.error(f"Failed to notify admin: {ex}", exc_info=ex)

@@ -11,8 +11,8 @@ class TransactionRepository(BaseRepository):
 
     async def create(
         self,
-        amount: Decimal,
-        rub_amount: Decimal,
+        amount: Decimal | float,
+        rub_amount: Decimal | float,
         service: str,
         user_id: int,
         status: TransactionStatusEnum = TransactionStatusEnum.pending,
@@ -20,6 +20,10 @@ class TransactionRepository(BaseRepository):
         transaction_hash: str | None = None,
         payment_link: str | None = None
     ) -> Transaction:
+        
+        amount = Decimal(amount)
+        rub_amount = Decimal(rub_amount)
+        
         transaction = Transaction(
             amount=amount,
             rub_amount=rub_amount,
