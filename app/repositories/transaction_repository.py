@@ -48,3 +48,10 @@ class TransactionRepository(BaseRepository):
             transaction.status = status
             await self.update(transaction)
         return transaction
+    
+    async def update_payment_link(self, transaction_id: int, payment_link: str) -> Transaction | None:
+        transaction = await self.get_by_id(transaction_id)
+        if transaction:
+            transaction.payment_link = payment_link
+            await self.update(transaction)
+        return transaction

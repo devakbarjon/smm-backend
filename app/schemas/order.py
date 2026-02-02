@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 from .telegram import TMAInitData
@@ -17,6 +19,7 @@ class OrderOut(BaseModel):
     service_id: int
     link: str
     quantity: Decimal
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -34,9 +37,3 @@ class OrderStatusOut(BaseModel):
     charge: float
     status: str
     remains: int
-
-
-class OrderStatusListOut(BaseModel):
-    orders: list[OrderStatusOut]
-
-    model_config = ConfigDict(from_attributes=True)

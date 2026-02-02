@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from datetime import datetime
 
 from decimal import Decimal
 
@@ -22,5 +23,6 @@ class TransactionOut(BaseModel):
     status: TransactionStatusEnum
     currency: str
     payment_link: str | None
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

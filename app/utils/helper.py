@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import ROUND_CEILING, Decimal
 import random
 import string
 from typing import List
@@ -7,6 +7,8 @@ from pydantic import TypeAdapter
 
 from app.enums.language import LangEnum
 from app.schemas.base import ResponseSchema, T
+
+from app.services.ton.ton_service import TonService
 
 
 def random_string(length: int = 8) -> str:
@@ -40,3 +42,20 @@ def validate_language(lang) -> LangEnum:
 
 def calculate_cost(price: Decimal, quantity: int) -> Decimal:
     return (price / Decimal(1000)) * quantity
+
+
+async def calculate_rub_to_stars(amount_rub: Decimal) -> Decimal:
+    usd_rate = await TonService.get_usd_rate() # RUB per USD
+    stars_rate = Decimal("0.013") # USD per star
+
+    if not usd_rate:
+        raise ValueError("Unable to fetch USD to RUB exchange rate")
+    
+    usd_rate = Decimal(usd_rate)
+    amount_rub = Decimal(amount_rub)
+
+    amount_stars = (
+        amount_rub / (usd_rate * stars_rate)
+    ).to_integral_value(rounding=ROUND_CEILING)
+
+    return amount_stars

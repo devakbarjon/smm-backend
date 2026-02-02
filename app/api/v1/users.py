@@ -152,8 +152,7 @@ async def change_language(
     if language_in.lang not in ["ru", "en"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid language!")
 
-    user.lang = language_in.lang
-    await user_repo.update(user)
+    await user_repo.update_language(user=user, lang=language_in.lang)
 
     return response(
         data={"lang": user.lang},

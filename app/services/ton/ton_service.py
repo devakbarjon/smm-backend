@@ -75,6 +75,32 @@ class TonServiceClass:
         except httpx.HTTPError as e:
             logger.error(f"Error fetching TON exchange rate: {e}")
             return None
+
+    async def get_usd_rate(self) -> float | None:
+        try:
+            """Fetch current USD to RUB exchange rate."""
+            async with httpx.AsyncClient() as client:
+                url = f"{TONAPI_BASE}/rates"
+                headers = {"Authorization": f"Bearer {settings.TON_API_KEY}"}
+                params = {
+                    "tokens": "usd",
+                    "currencies": "rub"
+                }
+
+                resp = await client.get(
+                    url,
+                    headers=headers,
+                    params=params
+                )
+
+                resp.raise_for_status()
+                data = resp.json()
+
+                rate = data.get("rates", {}).get("USD", {}).get("prices", {}).get("RUB", None)
+                return rate
+        except httpx.HTTPError as e:
+            logger.error(f"Error fetching USD to RUB exchange rate: {e}")
+            return None
     
 
 TonService = TonServiceClass()

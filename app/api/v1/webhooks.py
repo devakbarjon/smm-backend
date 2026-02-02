@@ -51,6 +51,13 @@ async def webhook_stars(
     transaction.transaction_hash = payload.transaction_hash
     await transaction_repo.update(transaction)
 
+    await notify_admin(
+        f"Received Stars payment:\n"
+        f"User ID: {user.user_id}\n"
+        f"Amount: {transaction.amount} {transaction.currency} (~{transaction.rub_amount:.2f} RUB)\n"
+        f"Transaction Hash: {transaction.transaction_hash}"
+    )
+
     return {"message": "Webhook processed successfully"}
 
 

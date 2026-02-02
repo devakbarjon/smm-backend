@@ -13,7 +13,7 @@ from app.repositories.user_repository import UserRepository
 
 from app.services.telegram.telegram_service import authorize_user, create_stars_invoice
 
-from app.utils.helper import response, convert_to_decimal
+from app.utils.helper import calculate_rub_to_stars, response, convert_to_decimal
 
 router = APIRouter()
 
@@ -38,21 +38,27 @@ async def deposit_stars(
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
 
+    stars_amount = await calculate_rub_to_stars(
+        amount_rub=deposit_in.amount
+    )
+
     transaction = await repo.create(
         user_id=user.user_id,
-        amount=convert_to_decimal(deposit_in.amount),
+        amount=stars_amount,
         rub_amount=convert_to_decimal(deposit_in.amount),
         service="telegram",
         currency="STARS"
     )
 
     invoice_link = await create_stars_invoice(
-        amount=deposit_in.amount,
+        amount=stars_amount,
         payload=str(transaction.id)
     )
 
-    transaction.payment_link = invoice_link
-    await repo.update(transaction)
+    await repo.update_payment_link(
+        transaction_id=transaction.id,
+        payment_link=invoice_link
+    )
 
     return response(
         data=transaction,

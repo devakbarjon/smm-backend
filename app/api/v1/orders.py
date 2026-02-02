@@ -5,7 +5,7 @@ from starlette import status
 from soc_proof.models import OrderStatus
 
 from app.schemas.base import ResponseSchema
-from app.schemas.order import OrderIn, OrderOut, OrderStatusOut, OrderStatusListOut, OrderStatusIn
+from app.schemas.order import OrderIn, OrderOut, OrderStatusOut, OrderStatusIn
 from app.schemas.user import UserIn
 
 from app.repositories.order_repository import OrderRepository
@@ -128,12 +128,12 @@ async def get_order_status(
     )
 
 
-@router.post("/list", response_model=ResponseSchema[OrderStatusListOut])
+@router.post("/list", response_model=ResponseSchema[OrderStatusOut])
 async def list_orders(
     user_in: UserIn,
     order_repo: OrderRepository = Depends(get_order_repo),
     user_repo: UserRepository = Depends(get_user_repo),
-) -> ResponseSchema[OrderStatusListOut]:
+) -> ResponseSchema[OrderStatusOut]:
     """
     List all orders for a user.
     """
