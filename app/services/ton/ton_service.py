@@ -34,7 +34,7 @@ class TonServiceClass:
             """Fetch full transaction data from TonAPI."""
             async with httpx.AsyncClient() as client:
                 url = f"{TONAPI_BASE}/blockchain/transactions/{tx_hash}"
-                headers = {"Authorization": f"Bearer {settings.TON_API_KEY}"}
+                headers = {"Authorization": f"Bearer {settings.TON_API_KEY.get_secret_value()}"}
 
                 resp = await client.get(
                     url,
@@ -55,7 +55,7 @@ class TonServiceClass:
             """Fetch current TON to RUB exchange rate."""
             async with httpx.AsyncClient() as client:
                 url = f"{TONAPI_BASE}/rates"
-                headers = {"Authorization": f"Bearer {settings.TON_API_KEY}"}
+                headers = {"Authorization": f"Bearer {settings.TON_API_KEY.get_secret_value()}"}
                 params = {
                     "tokens": "ton",
                     "currencies": "rub"
@@ -81,7 +81,7 @@ class TonServiceClass:
             """Fetch current USD to RUB exchange rate."""
             async with httpx.AsyncClient() as client:
                 url = f"{TONAPI_BASE}/rates"
-                headers = {"Authorization": f"Bearer {settings.TON_API_KEY}"}
+                headers = {"Authorization": f"Bearer {settings.TON_API_KEY.get_secret_value()}"}
                 params = {
                     "tokens": "usd",
                     "currencies": "rub"
@@ -100,6 +100,9 @@ class TonServiceClass:
                 return rate
         except httpx.HTTPError as e:
             logger.error(f"Error fetching USD to RUB exchange rate: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error fetching USD to RUB exchange rate: {e}")
             return None
     
 
