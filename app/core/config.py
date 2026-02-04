@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Smm TMA"
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: SecretStr = os.getenv("SECRET_KEY", "secret-key")
+    ADMIN_KEY: SecretStr = os.getenv("ADMIN_KEY", "admin-key")
     
     # Database
     DATABASE_NAME: str = "database"

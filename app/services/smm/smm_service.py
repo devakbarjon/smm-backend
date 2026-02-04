@@ -3,6 +3,10 @@ from . base import smm_api
 from soc_proof.models import Service, OrderStatus, AccountBalance
 from soc_proof.errors import NotEnoughFundsError
 
+from app.core.logging import logger
+
+from app.services.telegram.notify import notify_admin
+
 
 class SMMService:
     def __init__(self):
@@ -19,7 +23,18 @@ class SMMService:
 
             return order_id
         except NotEnoughFundsError:
+            balance = await self.get_balance()
 
+            await notify_admin(
+                f"Failed to create SMM order due to insufficient funds.\n"
+                f"Current balance: {balance.balance} {balance.currency}\n"
+                f"Attempted order - Service ID: {service_id}, Link: {link}, Quantity: {quantity}"
+            )
+
+            logger.error("Not enough funds to create SMM order.")
+            return None
+        except Exception as e:
+            logger.error(f"Error creating SMM order: {e}")
             return None
     
     async def get_order_status(self, orders: str | list) -> OrderStatus:

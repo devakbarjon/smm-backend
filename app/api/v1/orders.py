@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends
 from starlette.exceptions import HTTPException
 from starlette import status
@@ -19,6 +21,8 @@ from app.services.smm.smm_service import smm_service
 from app.services.telegram.telegram_service import authorize_user
 
 from app.utils.helper import response, list_response, calculate_cost
+
+from app.core.logging import logger
 
 router = APIRouter()
 
@@ -54,14 +58,17 @@ async def create_order(
     if user.balance < cost:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficient balance!")
 
-    user.balance -= cost
-    await user_repo.update(user)
+    await user_repo.update_balance(user, -cost)
 
     parent_order_id = await smm_service.create_order(
         service_id=order_in.service_id,
         link=order_in.link,
         quantity=order_in.quantity
     )
+
+    if not parent_order_id:
+        logger.error(f"Failed to create SMM order: {user.user_id}, {order_in.service_id}, {order_in.link}, {order_in.quantity}, {cost} RUB")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to create SMM order!")
 
     order = await order_repo.create(
         user_id=user.user_id,
@@ -128,12 +135,12 @@ async def get_order_status(
     )
 
 
-@router.post("/list", response_model=ResponseSchema[OrderStatusOut])
+@router.post("/list", response_model=ResponseSchema[List[OrderStatusOut]])
 async def list_orders(
     user_in: UserIn,
     order_repo: OrderRepository = Depends(get_order_repo),
     user_repo: UserRepository = Depends(get_user_repo),
-) -> ResponseSchema[OrderStatusOut]:
+) -> ResponseSchema[List[OrderStatusOut]]:
     """
     List all orders for a user.
     """
