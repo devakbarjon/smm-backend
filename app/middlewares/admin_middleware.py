@@ -9,6 +9,9 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
         if not request.url.path.startswith("/api/v1/admin"):
             return await call_next(request)
         
+        if request.method == "OPTIONS":
+            return await call_next(request)
+        
         if request.url.path == "/api/v1/admin/verify-key":
             return await call_next(request)
         
