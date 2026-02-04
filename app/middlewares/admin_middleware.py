@@ -9,6 +9,9 @@ class AdminAuthMiddleware(BaseHTTPMiddleware):
         if not request.url.path.startswith("/api/v1/admin"):
             return await call_next(request)
         
+        if request.url.path == "/api/v1/admin/verify-key":
+            return await call_next(request)
+        
         admin_key = request.headers.get("x-admin-key")
         
         if admin_key != settings.ADMIN_KEY.get_secret_value():
