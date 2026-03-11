@@ -61,7 +61,7 @@ async def create_order(
     await user_repo.update_balance(user, -cost)
 
     parent_order_id = await smm_service.create_order(
-        service_id=order_in.service_id,
+        service_id=service.api_service_id,
         link=order_in.link,
         quantity=order_in.quantity
     )
