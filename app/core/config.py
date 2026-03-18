@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     TON_API_KEY: SecretStr = SecretStr("your-ton-api-key") # https://tonconsole.com/
     TON_CENTER_API_KEY: SecretStr = SecretStr("your-ton-center-api-key") # https://toncenter.com/
     TON_WALLET_MNEMONIC: SecretStr = SecretStr("your-ton-wallet-mnemonic")
+
+    #Crypto
+    CRYPTO_PAY_API_KEY: SecretStr = SecretStr("crypto-pay-api-key")
     
     # Bot
     BOT_TOKEN: SecretStr = SecretStr("your-bot-token")

@@ -59,3 +59,9 @@ async def calculate_rub_to_stars(amount_rub: Decimal) -> Decimal:
     ).to_integral_value(rounding=ROUND_CEILING)
 
     return amount_stars
+
+
+async def calculate_rub_to_crypto(amount_rub: Decimal) -> Decimal:
+    usd_rate = await TonService.get_usd_rate() # RUB per USD
+    
+    return Decimal(amount_rub) / Decimal(usd_rate)
