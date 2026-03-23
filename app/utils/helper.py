@@ -64,4 +64,12 @@ async def calculate_rub_to_stars(amount_rub: Decimal) -> Decimal:
 async def calculate_rub_to_crypto(amount_rub: Decimal) -> Decimal:
     usd_rate = await TonService.get_usd_rate() # RUB per USD
     
-    return Decimal(amount_rub) / Decimal(usd_rate)
+    if not usd_rate:
+        raise ValueError("Unable to fetch USD to RUB exchange rate")
+    
+    usd_amount = (Decimal(amount_rub) / Decimal(usd_rate)).quantize(
+        Decimal('0.01'), 
+        rounding=ROUND_CEILING
+    )
+    
+    return usd_amount

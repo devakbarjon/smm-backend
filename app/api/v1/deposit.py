@@ -99,7 +99,7 @@ async def deposit_cryptopay(
     )
 
     invoice_link = await create_crypto_invoice(
-        amount=usd_amount
+        amount=float(usd_amount)
     )
 
     await repo.update_payment_link(
