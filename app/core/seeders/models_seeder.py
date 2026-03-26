@@ -28,6 +28,7 @@ PLATFORM_SEEDS = {
     "dzen": ["dzen", "дзен"],
     "map reviews": ["google maps", "карты", "reviews", "отзывы"],
     "reddit": ["reddit"],
+    "max": ["max", "макс", "мах"],
     "others": []
 }
 
