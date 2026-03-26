@@ -24,7 +24,7 @@ PLATFORM_SEEDS = {
     "web traffic": ["web", "traffic", "веб трафик", "трафик"],
     "facebook": ["facebook", "fb", "фейсбук"],
     "tiktok": ["tiktok", "tik tok", "тт", "тикток"],
-    "twitter": ["twitter", "x", "твиттер"],
+    "twitter": ["twitter", "твиттер"],
     "dzen": ["dzen", "дзен"],
     "map reviews": ["google maps", "карты", "reviews", "отзывы"],
     "reddit": ["reddit"],
