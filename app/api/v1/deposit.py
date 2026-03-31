@@ -145,7 +145,7 @@ async def deposit_tigerpay(
     invoice_link = await tiger_pay_service.create_payment(
         payload=TigerPayCreatePaymentRequest(
             partner_payment_id=str(transaction.id),
-            amount=int(convert_to_decimal(deposit_in.amount) * 100),
+            amount=int(deposit_in.amount),
             callback_url=f"{settings.API_V1_STR}/webhooks/tigerpay",
             payment_lifetime=30
         )
@@ -153,7 +153,7 @@ async def deposit_tigerpay(
 
     await repo.update_payment_link(
         transaction_id=transaction.id,
-        payment_link=invoice_link.get("PaymentURL", "")
+        payment_link=invoice_link.get("credentials", {}).get("PaymentURL", "")
     )
 
     return response(
