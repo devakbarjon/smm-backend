@@ -151,9 +151,11 @@ async def deposit_tigerpay(
         )
     )
 
+    print(invoice_link)
+
     await repo.update_payment_link(
         transaction_id=transaction.id,
-        payment_link=invoice_link.get("credentials", {}).get("PaymentURL", "")
+        payment_link=invoice_link.get("data", {}).get("credentials", {}).get("paymentUrl", "")
     )
 
     return response(
