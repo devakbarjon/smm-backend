@@ -47,6 +47,10 @@ class Settings(BaseSettings):
 
     # Telegram
     LOGS_CHAT_ID: int = -100
+
+    # Tiger Pay, get from https://tigerpay.llc
+    TIGER_PAY_URL: str = "https://example.com"
+    TIGER_PAY_KEY: SecretStr = SecretStr("your-tiger-pay-key")
     
     @property
     def database_url(self) -> str:

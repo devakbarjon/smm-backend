@@ -91,6 +91,26 @@ async def webhook_cryptopay(
 
 
 
+@router.post("/tigerpay")
+async def webhook_tigerpay(
+    request: Request,
+    transaction_repo: TransactionRepository = Depends(get_transaction_repo),
+    user_repo: UserRepository = Depends(get_user_repo),
+):
+    """Handle incoming Tiger Pay payment notifications"""
+
+    payload = await request.json()
+    query_params = dict(request.query_params)
+
+    logger.info(f"Received Tiger Pay webhook with payload: {payload} and query_params: {query_params}")
+
+    if payload.get("secret_key") != settings.SECRET_KEY.get_secret_value():
+        logger.warning(f"Invalid secret token attempt: {payload.get('secret_key')}",)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret token")
+
+
+
+
 
 # @router.post("/ton")
 # async def webhook_ton(
