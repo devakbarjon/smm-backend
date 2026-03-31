@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from starlette.exceptions import HTTPException
 from starlette import status
 
+from app.core.config import settings
+
 from app.schemas.base import ResponseSchema
 from app.schemas.deposit import DepositIn
 from app.schemas.transaction import TransactionOut
@@ -13,6 +15,7 @@ from app.repositories.user_repository import UserRepository
 
 from app.services.telegram.telegram_service import authorize_user, create_stars_invoice
 from app.services.crypto.cryptopay import create_crypto_invoice
+from app.services.payment.tigerpay import TigerPayCreatePaymentRequest, tiger_pay_service
 
 from app.utils.helper import calculate_rub_to_crypto, calculate_rub_to_stars, response, convert_to_decimal
 
@@ -105,6 +108,52 @@ async def deposit_cryptopay(
     await repo.update_payment_link(
         transaction_id=transaction.id,
         payment_link=invoice_link
+    )
+
+    return response(
+        data=transaction,
+        model=TransactionOut,
+        message="Transaction created successfully"
+    )
+
+
+@router.post(
+    "/tigerpay",
+    response_model=ResponseSchema[TransactionOut]
+)
+async def deposit_tigerpay(
+    deposit_in: DepositIn,
+    repo: TransactionRepository = Depends(get_transaction_repo),
+    user_repo: UserRepository = Depends(get_user_repo)
+):
+    """Create Tiger Pay deposit"""
+    user_data = await authorize_user(deposit_in.init_data)
+
+    user = await user_repo.get_by_id(user_data.user_id)
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
+
+    transaction = await repo.create(
+        user_id=user.user_id,
+        amount=deposit_in.amount,
+        rub_amount=convert_to_decimal(deposit_in.amount),
+        service="tigerpay",
+        currency="RUB"
+    )
+
+    invoice_link = await tiger_pay_service.create_payment(
+        payload=TigerPayCreatePaymentRequest(
+            partner_payment_id=str(transaction.id),
+            amount=int(convert_to_decimal(deposit_in.amount) * 100),
+            callback_url=f"{settings.API_V1_STR}/webhooks/tigerpay",
+            payment_lifetime=30
+        )
+    )
+
+    await repo.update_payment_link(
+        transaction_id=transaction.id,
+        payment_link=invoice_link.get("PaymentURL", "")
     )
 
     return response(
