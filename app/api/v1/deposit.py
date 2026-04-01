@@ -146,12 +146,10 @@ async def deposit_tigerpay(
         payload=TigerPayCreatePaymentRequest(
             partner_payment_id=str(transaction.id),
             amount=int(deposit_in.amount),
-            callback_url=f"{settings.API_V1_STR}/webhooks/tigerpay",
+            callback_url=f"https://api.smmly.pro{settings.API_V1_STR}/webhooks/tigerpay",
             payment_lifetime=30
         )
     )
-
-    print(invoice_link)
 
     await repo.update_payment_link(
         transaction_id=transaction.id,
