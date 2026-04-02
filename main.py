@@ -10,11 +10,18 @@ from app.core.logging import logger
 from app.api.v1.router import router as api_v1_router
 from app.middlewares.setup import setup_middlewares
 from app.services.telegram.bot_base import bot
+from app.core.scheduler import scheduler
+from app.utils.scheduler.base import start_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    start_scheduler()
+    logger.info("Scheduler started")
     yield
+    if scheduler.running:
+        scheduler.shutdown(wait=False)
+        logger.info("Scheduler stopped")
     await bot.session.close()
     logger.info("Shutting down...")
 
