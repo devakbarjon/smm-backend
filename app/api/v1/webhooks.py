@@ -141,20 +141,35 @@ async def webhook_tigerpay(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret token")
 
     payment_payload = payload.get("data") or payload
-    payment_status = str(payment_payload.get("status", "")).lower()
+    raw_status = payment_payload.get("status")
+    if raw_status is None:
+        raw_status = payment_payload.get("Status")
 
-    if payment_status not in {"paid", "success", "completed"}:
+    is_paid = False
+    if isinstance(raw_status, (int, float)):
+        is_paid = int(raw_status) == 1
+    else:
+        status_text = str(raw_status or "").strip().lower()
+        is_paid = status_text in {"1", "paid", "success", "completed", "succeeded"}
+
+    if not is_paid:
         return {"message": "Event type not handled"}
 
     transaction_id = (
         payment_payload.get("partnerPaymentId")
+        or payment_payload.get("PartnerPaymentId")
         or payment_payload.get("partner_payment_id")
         or payment_payload.get("payload")
     )
     if transaction_id is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing transaction id in payload")
 
-    transaction = await transaction_repo.get_by_id(int(transaction_id))
+    try:
+        transaction_id_int = int(transaction_id)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid transaction id in payload")
+
+    transaction = await transaction_repo.get_by_id(transaction_id_int)
     if not transaction:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
 
@@ -171,7 +186,11 @@ async def webhook_tigerpay(
     )
 
     transaction.status = TransactionStatusEnum.success
-    payment_id = payment_payload.get("paymentId") or payment_payload.get("payment_id")
+    payment_id = (
+        payment_payload.get("paymentId")
+        or payment_payload.get("PaymentId")
+        or payment_payload.get("payment_id")
+    )
     if payment_id is not None:
         transaction.transaction_hash = str(payment_id)
     await transaction_repo.update(transaction)
@@ -185,7 +204,7 @@ async def webhook_tigerpay(
 
     await notify(
         chat_id=user.user_id,
-        text=f"Ваш платеж в Tiger Pay на сумму {transaction.rub_amount:.2f} RUB был успешно обработан!"
+        text=f"Ваш платеж на сумму {transaction.rub_amount:.2f} RUB был успешно обработан!"
     )
 
     return {"message": "Webhook processed successfully"}
