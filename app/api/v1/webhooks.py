@@ -14,7 +14,7 @@ from app.repositories.user_repository import UserRepository
 from app.schemas.webhook import WebhookIn
 
 from app.services.ton.ton_service import TonService
-from app.services.telegram.notify import notify_admin
+from app.services.telegram.notify import notify_admin, notify
 
 from aiocryptopay.models.invoice import Invoice
 
@@ -77,8 +77,8 @@ async def webhook_cryptopay(
 
     logger.info(f"Received CryptoPay webhook with payload: {payload} and query_params: {query_params}")
 
-    if payload.get("secret_key") != settings.SECRET_KEY.get_secret_value():
-        logger.warning(f"Invalid secret token attempt: {payload.get('secret_key')}",)
+    if query_params.get("secret_key") != settings.SECRET_KEY.get_secret_value():
+        logger.warning(f"Invalid secret token attempt: {query_params.get('secret_key')}",)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret token")
 
     if payload.get("update_type ") != "invoice_paid":
@@ -112,6 +112,11 @@ async def webhook_cryptopay(
         f"User ID: {user.user_id}\n"
         f"Amount: {transaction.amount} {transaction.currency} (~{transaction.rub_amount:.2f} RUB)\n"
         f"Transaction ID: {transaction.id}"
+    )
+
+    await notify(
+        chat_id=user.user_id,
+        text=f"Ваш платеж в CryptoPay на сумму {transaction.rub_amount:.2f} RUB был успешно обработан!"
     )
 
     return {"message": "Webhook processed successfully"}
