@@ -16,8 +16,6 @@ from app.schemas.webhook import WebhookIn
 from app.services.ton.ton_service import TonService
 from app.services.telegram.notify import notify_admin, notify
 
-from aiocryptopay.models.invoice import Invoice
-
 router = APIRouter()
 
 
@@ -81,12 +79,13 @@ async def webhook_cryptopay(
         logger.warning(f"Invalid secret token attempt: {query_params.get('secret_key')}",)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret token")
 
-    if payload.get("update_type ") != "invoice_paid":
+    if payload.get("update_type") != "invoice_paid":
         return {"message": "Event type not handled"}
-    
-    invocie: Invoice = payload.get("payload", {})
 
-    transaction_id = invocie.payload
+    invoice_payload = payload.get("payload") or {}
+    transaction_id = invoice_payload.get("payload")
+    if transaction_id is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing transaction id in payload")
 
     transaction = await transaction_repo.get_by_id(int(transaction_id))
 
