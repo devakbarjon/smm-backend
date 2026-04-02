@@ -103,7 +103,7 @@ class TigerPayService:
 		self,
 		payload: TigerPayCreatePaymentRequest,
 	) -> dict[str, Any]:
-		params = {
+		request_params = {
 			"PartnerPaymentId": payload.partner_payment_id,
 			"Amount": payload.amount,
 			"Currency": payload.currency,
@@ -114,7 +114,11 @@ class TigerPayService:
 			"Payload": payload.payload,
 		}
 
-		return await self._request("/api/v3/fiat/payments/create", params=params)
+		logger.info(f"TigerPay create params: {request_params}")
+		result = await self._request("/api/v3/fiat/payments/create", params=request_params)
+		logger.info(f"TigerPay response: {result}")
+
+		return result
 
 
 tiger_pay_service = TigerPayService()

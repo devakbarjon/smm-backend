@@ -101,13 +101,19 @@ async def deposit_cryptopay(
         amount_rub=convert_to_decimal(deposit_in.amount)
     )
 
-    invoice_link = await create_crypto_invoice(
-        amount=float(usd_amount)
+    invoice_link, invoice_id = await create_crypto_invoice(
+        amount=float(usd_amount),
+        payload=str(transaction.id)
     )
 
     await repo.update_payment_link(
         transaction_id=transaction.id,
         payment_link=invoice_link
+    )
+
+    await repo.update_transaction_hash(
+        transaction_id=transaction.id,
+        transaction_hash=invoice_id
     )
 
     return response(
@@ -146,7 +152,7 @@ async def deposit_tigerpay(
         payload=TigerPayCreatePaymentRequest(
             partner_payment_id=str(transaction.id),
             amount=int(deposit_in.amount),
-            callback_url=f"https://api.smmly.pro{settings.API_V1_STR}/webhooks/tigerpay",
+            callback_url=f"https://api.smmly.pro{settings.API_V1_STR}/webhooks/tigerpay?secret_key={settings.SECRET_KEY.get_secret_value()}",
             payment_lifetime=30
         )
     )

@@ -86,7 +86,35 @@ async def webhook_cryptopay(
     
     invocie: Invoice = payload.get("payload", {})
 
-    invoice_id = invocie.invoice_id
+    transaction_id = invocie.payload
+
+    transaction = await transaction_repo.get_by_id(int(transaction_id))
+
+    if not transaction:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+    
+    user = await user_repo.get_by_id(transaction.user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    await user_repo.update_balance(
+        user=user,
+        amount=transaction.rub_amount
+    )
+
+    await transaction_repo.update_status(
+        transaction_id=transaction.id,
+        status=TransactionStatusEnum.success
+    )
+
+    await notify_admin(
+        f"Received CryptoPay payment:\n"
+        f"User ID: {user.user_id}\n"
+        f"Amount: {transaction.amount} {transaction.currency} (~{transaction.rub_amount:.2f} RUB)\n"
+        f"Transaction ID: {transaction.id}"
+    )
+
+    return {"message": "Webhook processed successfully"}
 
 
 

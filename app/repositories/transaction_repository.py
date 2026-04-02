@@ -55,3 +55,10 @@ class TransactionRepository(BaseRepository):
             transaction.payment_link = payment_link
             await self.update(transaction)
         return transaction
+    
+    async def update_transaction_hash(self, transaction_id: int, transaction_hash: str) -> Transaction | None:
+        transaction = await self.get_by_id(transaction_id)
+        if transaction:
+            transaction.transaction_hash = transaction_hash
+            await self.update(transaction)
+        return transaction
