@@ -136,9 +136,59 @@ async def webhook_tigerpay(
 
     logger.info(f"Received Tiger Pay webhook with payload: {payload} and query_params: {query_params}")
 
-    if payload.get("secret_key") != settings.SECRET_KEY.get_secret_value():
-        logger.warning(f"Invalid secret token attempt: {payload.get('secret_key')}",)
+    if query_params.get("secret_key") != settings.SECRET_KEY.get_secret_value():
+        logger.warning(f"Invalid secret token attempt: {query_params.get('secret_key')}",)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret token")
+
+    payment_payload = payload.get("data") or payload
+    payment_status = str(payment_payload.get("status", "")).lower()
+
+    if payment_status not in {"paid", "success", "completed"}:
+        return {"message": "Event type not handled"}
+
+    transaction_id = (
+        payment_payload.get("partnerPaymentId")
+        or payment_payload.get("partner_payment_id")
+        or payment_payload.get("payload")
+    )
+    if transaction_id is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing transaction id in payload")
+
+    transaction = await transaction_repo.get_by_id(int(transaction_id))
+    if not transaction:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
+
+    if transaction.status == TransactionStatusEnum.success:
+        return {"message": "Webhook already processed"}
+
+    user = await user_repo.get_by_id(transaction.user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    await user_repo.update_balance(
+        user=user,
+        amount=transaction.rub_amount
+    )
+
+    transaction.status = TransactionStatusEnum.success
+    payment_id = payment_payload.get("paymentId") or payment_payload.get("payment_id")
+    if payment_id is not None:
+        transaction.transaction_hash = str(payment_id)
+    await transaction_repo.update(transaction)
+
+    await notify_admin(
+        f"Received Tiger Pay payment:\n"
+        f"User ID: {user.user_id}\n"
+        f"Amount: {transaction.amount} {transaction.currency} (~{transaction.rub_amount:.2f} RUB)\n"
+        f"Transaction ID: {transaction.id}"
+    )
+
+    await notify(
+        chat_id=user.user_id,
+        text=f"Ваш платеж в Tiger Pay на сумму {transaction.rub_amount:.2f} RUB был успешно обработан!"
+    )
+
+    return {"message": "Webhook processed successfully"}
 
 
 

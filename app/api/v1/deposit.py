@@ -152,7 +152,7 @@ async def deposit_tigerpay(
         payload=TigerPayCreatePaymentRequest(
             partner_payment_id=str(transaction.id),
             amount=int(deposit_in.amount),
-            callback_url=f"https://api.smmly.pro{settings.API_V1_STR}/webhooks/tigerpay?secret_key={settings.SECRET_KEY.get_secret_value()}",
+            callback_url=f"https://api.smmly.pro{settings.API_V1_STR}/webhook/tigerpay?secret_key={settings.SECRET_KEY.get_secret_value()}",
             payment_lifetime=30
         )
     )
