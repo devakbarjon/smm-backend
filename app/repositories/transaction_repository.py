@@ -56,9 +56,9 @@ class TransactionRepository(BaseRepository):
             await self.update(transaction)
         return transaction
     
-    async def update_transaction_hash(self, transaction_id: int, transaction_hash: str) -> Transaction | None:
+    async def update_transaction_hash(self, transaction_id: int, transaction_hash: str | int) -> Transaction | None:
         transaction = await self.get_by_id(transaction_id)
         if transaction:
-            transaction.transaction_hash = transaction_hash
+            transaction.transaction_hash = str(transaction_hash)
             await self.update(transaction)
         return transaction

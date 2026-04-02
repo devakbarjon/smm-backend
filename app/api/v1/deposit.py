@@ -113,7 +113,7 @@ async def deposit_cryptopay(
 
     await repo.update_transaction_hash(
         transaction_id=transaction.id,
-        transaction_hash=invoice_id
+        transaction_hash=str(invoice_id)
     )
 
     return response(
