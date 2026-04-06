@@ -19,6 +19,7 @@ from app.dependencies.repositories import get_service_repo
 
 from app.services.smm.smm_service import smm_service
 from app.services.telegram.telegram_service import authorize_user
+from app.services.telegram.notify import notify_admin
 
 from app.utils.helper import response, list_response, calculate_cost
 
@@ -77,6 +78,17 @@ async def create_order(
         link=order_in.link,
         quantity=order_in.quantity,
         cost=cost
+    )
+
+    await notify_admin(
+        text=f"New order created:\n"
+        f"User: {user.username} (ID: {user.user_id})\n"
+        f"Service: {service.name} (ID: {service.id})\n"
+        f"Link: {order_in.link}\n"
+        f"Quantity: {order_in.quantity}\n"
+        f"Cost: {cost} RUB\n"
+        f"Order ID: {order.id}\n"
+        f"Parent Order ID: {parent_order_id}"
     )
 
     return response(
