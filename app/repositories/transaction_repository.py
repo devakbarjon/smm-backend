@@ -1,4 +1,5 @@
 from decimal import Decimal
+from sqlalchemy import select, func
 
 from .base import BaseRepository
 
@@ -44,6 +45,15 @@ class TransactionRepository(BaseRepository):
 
     async def get_total_transactions(self) -> int:
         return await self.get_count(Transaction)
+
+    async def get_total_completed_revenue(self) -> Decimal:
+        stmt = (
+            select(func.coalesce(func.sum(Transaction.rub_amount), 0))
+            .where(Transaction.status == TransactionStatusEnum.success)
+        )
+        result = await self.session.execute(stmt)
+        value = result.scalar()
+        return Decimal(str(value or 0))
 
     async def update_status(self, transaction_id: int, status: TransactionStatusEnum) -> Transaction | None:
         transaction = await self.get_by_id(transaction_id)

@@ -59,7 +59,7 @@ async def get_dashboard_stats(
         pending_orders=await order_repo.get_pending_orders(),
         services=await service_repo.get_total_services(),
         transactions=await transaction_repo.get_total_transactions(),
-        total_revenue=await order_repo.get_total_revenue()
+        total_revenue=await transaction_repo.get_total_completed_revenue()
     )
 
     return ResponseSchema(data=stats)
