@@ -229,3 +229,12 @@ class AdminKeyVerify(BaseModel):
 
 class AdminKeyVerifyResponse(BaseModel):
     valid: bool
+
+
+class DashboardStatsResponse(BaseModel):
+    total_users: int
+    total_orders: int
+    pending_orders: int
+    services: int
+    transactions: int
+    total_revenue: Decimal = Field(default=Decimal("0.00"), decimal_places=2)

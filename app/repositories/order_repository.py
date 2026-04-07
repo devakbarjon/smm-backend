@@ -1,4 +1,5 @@
 from decimal import Decimal
+from sqlalchemy import select, func
 
 from app.repositories.base import BaseRepository
 from app.models.order import Order
@@ -32,6 +33,18 @@ class OrderRepository(BaseRepository):
     
     async def get_by_user_id(self, user_id: int) -> list[Order]:
         return await self.get_all(Order, user_id=user_id)
+
+    async def get_total_orders(self) -> int:
+        return await self.get_count(Order)
+
+    async def get_pending_orders(self) -> int:
+        return await self.get_count(Order, is_done=False)
+
+    async def get_total_revenue(self) -> Decimal:
+        stmt = select(func.coalesce(func.sum(Order.cost), 0)).where(Order.is_done.is_(True))
+        result = await self.session.execute(stmt)
+        value = result.scalar()
+        return Decimal(str(value or 0))
 
     async def mark_as_done(self, order_id: int) -> Order | None:
         order = await self.get_by_id(order_id)

@@ -42,6 +42,9 @@ class TransactionRepository(BaseRepository):
     async def get_by_user_id(self, user_id: int) -> list[Transaction]:
         return await self.get_all(Transaction, user_id=user_id, status=TransactionStatusEnum.success)
 
+    async def get_total_transactions(self) -> int:
+        return await self.get_count(Transaction)
+
     async def update_status(self, transaction_id: int, status: TransactionStatusEnum) -> Transaction | None:
         transaction = await self.get_by_id(transaction_id)
         if transaction:

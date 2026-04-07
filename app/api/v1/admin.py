@@ -27,7 +27,7 @@ from app.schemas.admin import (
     PlatformCreate, PlatformUpdate, PlatformResponse,
     TransactionCreate, TransactionUpdate, TransactionResponse,
     SettingCreate, SettingUpdate, SettingResponse,
-    AdminKeyVerify, AdminKeyVerifyResponse
+    AdminKeyVerify, AdminKeyVerifyResponse, DashboardStatsResponse
 )
 from app.schemas.base import ResponseSchema
 from app.core.config import settings
@@ -40,6 +40,29 @@ async def verify_admin_key(data: AdminKeyVerify):
     """Verify if the provided admin key is valid"""
     is_valid = data.key == settings.ADMIN_KEY.get_secret_value()
     return AdminKeyVerifyResponse(valid=is_valid)
+
+
+@router.get("/dashboard", response_model=ResponseSchema[DashboardStatsResponse])
+async def get_dashboard_stats(
+    session: AsyncSession = Depends(get_db)
+):
+    """Get dashboard stats for admin panel"""
+
+    user_repo = UserRepository(session)
+    order_repo = OrderRepository(session)
+    service_repo = ServiceRepository(session)
+    transaction_repo = TransactionRepository(session)
+
+    stats = DashboardStatsResponse(
+        total_users=await user_repo.get_total_users(),
+        total_orders=await order_repo.get_total_orders(),
+        pending_orders=await order_repo.get_pending_orders(),
+        services=await service_repo.get_total_services(),
+        transactions=await transaction_repo.get_total_transactions(),
+        total_revenue=await order_repo.get_total_revenue()
+    )
+
+    return ResponseSchema(data=stats)
 
 
 @router.get("/users", response_model=ResponseSchema[List[UserResponse]])

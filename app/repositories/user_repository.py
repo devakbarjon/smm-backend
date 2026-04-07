@@ -60,6 +60,9 @@ class UserRepository(BaseRepository):
 
     async def get_ref_count(self, user_id: int) -> int:
         return await self.get_count(User, ref_id=user_id)
+
+    async def get_total_users(self) -> int:
+        return await self.get_count(User)
     
     async def update_balance(self, user: User, amount: float | Decimal) -> User:
         amount = Decimal(amount)

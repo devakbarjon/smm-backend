@@ -87,7 +87,7 @@ async def create_order(
         f"Link: {order_in.link}\n\n"
         f"Quantity: {order_in.quantity}\n\n"
         f"Cost: {cost} RUB\n\n"
-        f"Profit: {cost - service.original_price * order_in.quantity} RUB\n\n"
+        f"Profit: {cost - (service.original_price / 1000) * order_in.quantity} RUB\n\n"
         f"Order ID: <code>{order.id}</code>\n\n"
         f"Parent Order ID: <code>{parent_order_id}</code>"
     )

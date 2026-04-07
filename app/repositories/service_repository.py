@@ -25,6 +25,9 @@ class ServiceRepository(BaseRepository):
     
     async def get_all_services(self) -> list[Service]:
         return await self.get_all(Service)
+
+    async def get_total_services(self) -> int:
+        return await self.get_count(Service)
     
     async def get_services_by_category_id(self, category_id: int | str) -> list[Service]:
         return await self.get_all(Service, category_id=category_id)
