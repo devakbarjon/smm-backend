@@ -15,7 +15,8 @@ from app.repositories.user_repository import UserRepository
 
 from app.services.telegram.telegram_service import authorize_user, create_stars_invoice
 from app.services.crypto.cryptopay import create_crypto_invoice
-from app.services.payment.tigerpay import TigerPayCreatePaymentRequest, tiger_pay_service
+from app.services.payment.platega import platega_client
+from platega.types import PaymentMethod
 
 from app.utils.helper import calculate_rub_to_crypto, calculate_rub_to_stars, response, convert_to_decimal
 
@@ -124,15 +125,15 @@ async def deposit_cryptopay(
 
 
 @router.post(
-    "/tigerpay",
+    "/platega",
     response_model=ResponseSchema[TransactionOut]
 )
-async def deposit_tigerpay(
+async def deposit_platega(
     deposit_in: DepositIn,
     repo: TransactionRepository = Depends(get_transaction_repo),
     user_repo: UserRepository = Depends(get_user_repo)
 ):
-    """Create Tiger Pay deposit"""
+    """Create Platega deposit"""
     user_data = await authorize_user(deposit_in.init_data)
 
     user = await user_repo.get_by_id(user_data.user_id)
@@ -144,22 +145,28 @@ async def deposit_tigerpay(
         user_id=user.user_id,
         amount=deposit_in.amount,
         rub_amount=convert_to_decimal(deposit_in.amount),
-        service="tigerpay",
+        service="platega",
         currency="RUB"
     )
 
-    invoice_link = await tiger_pay_service.create_payment(
-        payload=TigerPayCreatePaymentRequest(
-            partner_payment_id=str(transaction.id),
-            amount=int(deposit_in.amount),
-            callback_url=f"https://api.smmly.pro{settings.API_V1_STR}/webhook/tigerpay?secret_key={settings.SECRET_KEY.get_secret_value()}",
-            payment_lifetime=30
-        )
+    result = await platega_client.create_transaction(
+        payment_method=PaymentMethod.SBP_QR,
+        amount=deposit_in.amount,
+        currency="RUB",
+        description=f"Deposit #{transaction.id}",
+        return_url=f"https://t.me/smmly_bot/app?startapp=success",
+        failed_url=f"https://t.me/smmly_bot/app?startapp=failed",
+        payload=str(transaction.id),
     )
 
     await repo.update_payment_link(
         transaction_id=transaction.id,
-        payment_link=invoice_link.get("data", {}).get("credentials", {}).get("paymentUrl", "")
+        payment_link=str(result.redirect) if result.redirect else ""
+    )
+
+    await repo.update_transaction_hash(
+        transaction_id=transaction.id,
+        transaction_hash=str(result.transaction_id)
     )
 
     return response(

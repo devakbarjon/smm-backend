@@ -48,9 +48,9 @@ class Settings(BaseSettings):
     # Telegram
     LOGS_CHAT_ID: int = -100
 
-    # Tiger Pay, get from https://tigerpay.llc
-    TIGER_PAY_URL: str = "https://example.com"
-    TIGER_PAY_KEY: SecretStr = SecretStr("your-tiger-pay-key")
+    # Platega, get from https://platega.io
+    PLATEGA_MERCHANT_ID: str = "your-platega-merchant-id"
+    PLATEGA_SECRET: SecretStr = SecretStr("your-platega-secret")
     
     @property
     def database_url(self) -> str:
