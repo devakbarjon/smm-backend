@@ -15,7 +15,7 @@ from app.repositories.user_repository import UserRepository
 
 from app.services.telegram.telegram_service import authorize_user, create_stars_invoice
 from app.services.crypto.cryptopay import create_crypto_invoice
-from app.services.payment.platega import platega_client
+from app.services.payment.platega import platega_service
 from platega.types import PaymentMethod
 
 from app.utils.helper import calculate_rub_to_crypto, calculate_rub_to_stars, response, convert_to_decimal
@@ -149,7 +149,7 @@ async def deposit_platega(
         currency="RUB"
     )
 
-    result = await platega_client.create_transaction(
+    result = await platega_service.create_transaction(
         payment_method=PaymentMethod.SBP_QR,
         amount=deposit_in.amount,
         currency="RUB",
