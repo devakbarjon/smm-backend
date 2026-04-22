@@ -123,44 +123,34 @@ async def webhook_cryptopay(
 
 
 
-@router.post("/tigerpay")
-async def webhook_tigerpay(
+@router.post("/platega")
+async def webhook_platega_payment_status(
     request: Request,
     transaction_repo: TransactionRepository = Depends(get_transaction_repo),
     user_repo: UserRepository = Depends(get_user_repo),
 ):
-    """Handle incoming Tiger Pay payment notifications"""
+    """Handle incoming Platega transaction status callbacks."""
 
     payload = await request.json()
-    query_params = dict(request.query_params)
+    merchant_id = request.headers.get("X-MerchantId")
+    secret = request.headers.get("X-Secret")
 
-    logger.info(f"Received Tiger Pay webhook with payload: {payload} and query_params: {query_params}")
-
-    if query_params.get("secret_key") != settings.SECRET_KEY.get_secret_value():
-        logger.warning(f"Invalid secret token attempt: {query_params.get('secret_key')}",)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid secret token")
-
-    payment_payload = payload.get("data") or payload
-    raw_status = payment_payload.get("status")
-    if raw_status is None:
-        raw_status = payment_payload.get("Status")
-
-    is_paid = False
-    if isinstance(raw_status, (int, float)):
-        is_paid = int(raw_status) == 1
-    else:
-        status_text = str(raw_status or "").strip().lower()
-        is_paid = status_text in {"1", "paid", "success", "completed", "succeeded"}
-
-    if not is_paid:
-        return {"message": "Event type not handled"}
-
-    transaction_id = (
-        payment_payload.get("partnerPaymentId")
-        or payment_payload.get("PartnerPaymentId")
-        or payment_payload.get("partner_payment_id")
-        or payment_payload.get("payload")
+    logger.info(
+        "Received Platega callback with payload: %s",
+        payload,
     )
+
+    if (
+        merchant_id != settings.PLATEGA_MERCHANT_ID
+        or secret != settings.PLATEGA_SECRET.get_secret_value()
+    ):
+        logger.warning(
+            "Invalid Platega callback credentials: X-MerchantId=%s",
+            merchant_id,
+        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid callback credentials")
+
+    transaction_id = payload.get("payload")
     if transaction_id is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing transaction id in payload")
 
@@ -169,42 +159,59 @@ async def webhook_tigerpay(
     except (TypeError, ValueError):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid transaction id in payload")
 
+    status_text = str(payload.get("status") or "").strip().upper()
+    if status_text not in {"CONFIRMED", "CANCELED", "CHARGEBACKED"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid status in payload")
+
     transaction = await transaction_repo.get_by_id(transaction_id_int)
     if not transaction:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Transaction not found")
-
-    if transaction.status == TransactionStatusEnum.success:
-        return {"message": "Webhook already processed"}
 
     user = await user_repo.get_by_id(transaction.user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    await user_repo.update_balance(
-        user=user,
-        amount=transaction.rub_amount
-    )
+    if status_text == "CONFIRMED":
+        if transaction.status == TransactionStatusEnum.success:
+            return {"message": "Webhook already processed"}
 
-    transaction.status = TransactionStatusEnum.success
-    payment_id = (
-        payment_payload.get("paymentId")
-        or payment_payload.get("PaymentId")
-        or payment_payload.get("payment_id")
-    )
-    if payment_id is not None:
-        transaction.transaction_hash = str(payment_id)
+        await user_repo.update_balance(
+            user=user,
+            amount=transaction.rub_amount
+        )
+
+        transaction.status = TransactionStatusEnum.success
+        transaction.transaction_hash = str(payload.get("id"))
+        await transaction_repo.update(transaction)
+
+        await notify_admin(
+            f"Received Platega payment:\n"
+            f"User ID: {user.user_id}\n"
+            f"Amount: {transaction.amount} {transaction.currency} (~{transaction.rub_amount:.2f} RUB)\n"
+            f"Transaction ID: {transaction.id}"
+        )
+
+        await notify(
+            chat_id=user.user_id,
+            text=f"Ваш платеж на сумму {transaction.rub_amount:.2f} RUB был успешно обработан!"
+        )
+        return {"message": "Webhook processed successfully"}
+
+    if status_text == "CHARGEBACKED" and transaction.status == TransactionStatusEnum.success:
+        await user_repo.update_balance(
+            user=user,
+            amount=-transaction.rub_amount
+        )
+
+    transaction.status = TransactionStatusEnum.failed
+    transaction.transaction_hash = str(payload.get("id"))
     await transaction_repo.update(transaction)
 
     await notify_admin(
-        f"Received Tiger Pay payment:\n"
+        f"Platega payment status update: {status_text}\n"
         f"User ID: {user.user_id}\n"
         f"Amount: {transaction.amount} {transaction.currency} (~{transaction.rub_amount:.2f} RUB)\n"
         f"Transaction ID: {transaction.id}"
-    )
-
-    await notify(
-        chat_id=user.user_id,
-        text=f"Ваш платеж на сумму {transaction.rub_amount:.2f} RUB был успешно обработан!"
     )
 
     return {"message": "Webhook processed successfully"}
