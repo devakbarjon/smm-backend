@@ -37,7 +37,7 @@ class PlategaService:
 
         data = await platega_client._request(
             "POST",
-            "/transaction/process",
+            "/v2/transaction/process",
             json=request_payload,
         )
         return CreateTransactionResponse(**data)
