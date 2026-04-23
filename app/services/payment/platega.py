@@ -1,8 +1,7 @@
 from decimal import Decimal
 
 from platega import PlategaClient
-from platega.models import CreateTransactionResponse
-from platega.types import PaymentMethod
+from pydantic import BaseModel
 
 from app.core.config import settings
 
@@ -13,6 +12,12 @@ platega_client = PlategaClient(
 
 
 class PlategaService:
+
+    class CreateTransactionResult(BaseModel):
+        transaction_id: str
+        payment_link: str | None = None
+        raw: dict
+
     async def create_transaction(
         self,
         amount: float | Decimal,
@@ -21,7 +26,7 @@ class PlategaService:
         return_url: str,
         failed_url: str,
         payload: str | None = None,
-    ) -> CreateTransactionResponse:
+    ) -> CreateTransactionResult:
         # Work around platega-sdk Decimal serialization issue by sending JSON-native numbers.
         amount_number = float(amount)
         request_payload = {
@@ -40,7 +45,24 @@ class PlategaService:
             "/v2/transaction/process",
             json=request_payload,
         )
-        return CreateTransactionResponse(**data)
+
+        transaction_id = str(data.get("transactionId") or data.get("id") or "")
+        if not transaction_id:
+            raise ValueError("Platega response does not include transaction id.")
+
+        payment_link = (
+            data.get("redirect")
+            or data.get("paymentUrl")
+            or data.get("paymentLink")
+            or data.get("url")
+            or data.get("link")
+        )
+
+        return self.CreateTransactionResult(
+            transaction_id=transaction_id,
+            payment_link=str(payment_link) if payment_link else None,
+            raw=data,
+        )
 
 
 platega_service = PlategaService()

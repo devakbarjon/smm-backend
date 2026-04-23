@@ -160,7 +160,7 @@ async def deposit_platega(
 
     await repo.update_payment_link(
         transaction_id=transaction.id,
-        payment_link=str(result.redirect) if result.redirect else ""
+        payment_link=result.payment_link or ""
     )
 
     await repo.update_transaction_hash(
