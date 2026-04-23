@@ -150,7 +150,6 @@ async def deposit_platega(
     )
 
     result = await platega_service.create_transaction(
-        payment_method=PaymentMethod.SBP_QR,
         amount=deposit_in.amount,
         currency="RUB",
         description=f"Deposit #{transaction.id}",
