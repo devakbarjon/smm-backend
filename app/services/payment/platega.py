@@ -15,7 +15,6 @@ platega_client = PlategaClient(
 class PlategaService:
     async def create_transaction(
         self,
-        payment_method: PaymentMethod,
         amount: float | Decimal,
         currency: str,
         description: str,
@@ -26,7 +25,6 @@ class PlategaService:
         # Work around platega-sdk Decimal serialization issue by sending JSON-native numbers.
         amount_number = float(amount)
         request_payload = {
-            "paymentMethod": int(payment_method),
             "paymentDetails": {
                 "amount": amount_number,
                 "currency": currency,
